@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopping Cart - Moonlit Promise</title>
+    <link rel="stylesheet" href="/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* Cart Page Specific Styles */
+        .cart-container {
+            max-width: 1200px;
+            margin: 4rem auto;
+            padding: 0 2rem;
+        }
+
+        .cart-container h1 {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 3rem;
+            background: linear-gradient(135deg, #fff, #ffd7ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .cart-content {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+        }
+
+        /* Cart Items List */
+        .cart-items {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2rem;
+            border: 1px solid rgba(155, 89, 182, 0.3);
+        }
+
+        .cart-item {
+            display: grid;
+            grid-template-columns: 100px 1fr auto auto;
+            gap: 1.5rem;
+            align-items: center;
+            padding: 1.5rem 0;
+            border-bottom: 1px solid rgba(155, 89, 182, 0.2);
+        }
+
+        .cart-item:last-child {
+            border-bottom: none;
+        }
+
+        .item-image {
+            width: 100px;
+            height: 100px;
+            border-radius: 15px;
+            overflow: hidden;
+            background: linear-gradient(135deg, #9b59b6, #8e44ad);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+        }
+
+        .item-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .item-details h3 {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+            color: #fff;
+        }
+
+        .item-price {
+            color: #f1c40f;
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+
+        .item-quantity {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .quantity-btn {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            border: 1px solid #9b59b6;
+            background: rgba(155, 89, 182, 0.1);
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .quantity-btn:hover {
+            background: #9b59b6;
+            transform: scale(1.1);
+        }
+
+        .quantity-value {
+            font-size: 1.2rem;
+            font-weight: 600;
+            min-width: 40px;
+            text-align: center;
+        }
+
+        .item-total {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #f1c40f;
+            min-width: 100px;
+            text-align: right;
+        }
+
+        .remove-item {
+            color: #ff6b6b;
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            padding: 0.5rem;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .remove-item:hover {
+            background: rgba(255, 107, 107, 0.2);
+            transform: scale(1.1);
+        }
+
+        /* Cart Summary */
+        .cart-summary {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2rem;
+            border: 1px solid rgba(155, 89, 182, 0.3);
+            height: fit-content;
+            position: sticky;
+            top: 100px;
+        }
+
+        .summary-title {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            color: #f1c40f;
+            text-align: center;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 1rem 0;
+            border-bottom: 1px solid rgba(155, 89, 182, 0.2);
+            font-size: 1.1rem;
+        }
+
+        .summary-row.total {
+            border-bottom: none;
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #f1c40f;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 2px solid #9b59b6;
+        }
+
+        .checkout-btn {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, #9b59b6, #8e44ad);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 2rem;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .checkout-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(155, 89, 182, 0.4);
+        }
+
+        .continue-shopping {
+            display: block;
+            text-align: center;
+            margin-top: 1rem;
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .continue-shopping:hover {
+            color: #f1c40f;
+        }
+
+        /* Empty Cart */
+        .empty-cart {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            border: 1px solid rgba(155, 89, 182, 0.3);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .empty-cart-icon {
+            font-size: 5rem;
+            margin-bottom: 1rem;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .empty-cart h2 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            color: #f1c40f;
+        }
+
+        .empty-cart p {
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 2rem;
+        }
+
+        .shop-now-btn {
+            display: inline-block;
+            padding: 1rem 3rem;
+            background: linear-gradient(135deg, #9b59b6, #8e44ad);
+            color: white;
+            text-decoration: none;
+            border-radius: 10px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .shop-now-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(155, 89, 182, 0.4);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .cart-content {
+                grid-template-columns: 1fr;
+            }
+
+            .cart-item {
+                grid-template-columns: 80px 1fr;
+                grid-template-rows: auto auto;
+                gap: 1rem;
+            }
+
+            .item-image {
+                width: 80px;
+                height: 80px;
+                grid-row: span 2;
+            }
+
+            .item-quantity {
+                grid-column: 2;
+            }
+
+            .item-total {
+                grid-column: 2;
+                text-align: left;
+            }
+
+            .remove-item {
+                position: absolute;
+                top: 1rem;
+                right: 1rem;
+            }
+
+            .cart-item {
+                position: relative;
+            }
+        }
+
+        /* Quantity Form */
+        .quantity-form {
+            display: inline;
+        }
+
+        .update-quantity {
+            background: none;
+            border: none;
+            padding: 0;
+        }
+
+        /* Free Shipping Progress */
+        .shipping-progress {
+            margin: 1rem 0;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 10px;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: rgba(155, 89, 182, 0.2);
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 0.5rem 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #9b59b6, #f1c40f);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        .shipping-message {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .shipping-message i {
+            color: #f1c40f;
+            margin-right: 0.3rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="magical-particles"></div>
+    
+    <!-- Top Bar -->
+    <div class="top-bar">
+        <div class="container">
+            <i class="fas fa-truck"></i> FREE SHIPPING on all orders above ₹999 | All India Delivery
+        </div>
+    </div>
+    
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <img src="/moonlitpromise.png" alt="Moonlit Promise">
+            </div>
+            <ul class="nav-links">
+                <li><a href="/">Home</a></li>
+                <li><a href="/shop">Shop</a></li>
+                <li><a href="/cart" class="active">Cart</a></li>
+                <li><a href="/history">History</a></li>
+                <li><a href="/about">About</a></li>
+                <li><a href="/terms">Terms</a></li>
+                <% if (isAdmin) { %>
+                    <li><a href="/admin">Admin</a></li>
+                <% } %>
+            </ul>
+            <div class="auth-buttons">
+                <% if (user) { %>
+                    <div class="user-profile">
+                        <img src="https://cdn.discordapp.com/avatars/<%= user.id %>/<%= user.avatar %>.png" alt="Avatar">
+                        <span><%= user.username %></span>
+                        <a href="/logout" class="logout-btn">Logout</a>
+                    </div>
+                <% } else { %>
+                    <a href="/auth/discord" class="discord-btn">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 127.14 96.36">
+                            <path fill="#fff" d="M107.7,8.07A105.15,105.15,0,0,0,81.47,0a72.06,72.06,0,0,0-3.36,6.83A97.68,97.68,0,0,0,49,6.83,72.37,72.37,0,0,0,45.64,0,105.89,105.89,0,0,0,19.39,8.09C2.79,32.65-1.71,56.6.54,80.21h0A105.73,105.73,0,0,0,32.71,96.36,77.7,77.7,0,0,0,39.6,85.25a68.42,68.42,0,0,1-10.85-5.18c.91-.66,1.8-1.34,2.66-2a75.57,75.57,0,0,0,64.32,0c.87.71,1.76,1.39,2.66,2a68.68,68.68,0,0,1-10.87,5.19,77,77,0,0,0,6.89,11.1A105.25,105.25,0,0,0,126.6,80.22h0C129.24,53.84,122.09,29.11,107.7,8.07ZM42.45,65.69C36.18,65.69,31,60,31,53s5-12.74,11.43-12.74S54,46,53.89,53,48.84,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.25,60,73.25,53s5-12.74,11.44-12.74S96.23,46,96.12,53,91.08,65.69,84.69,65.69Z"/>
+                        </svg>
+                        Login
+                    </a>
+                <% } %>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <div class="cart-container">
+            <h1><i class="fas fa-shopping-cart"></i> Your Shopping Cart</h1>
+            
+            <% if (cartItems.length === 0) { %>
+                <!-- Empty Cart -->
+                <div class="empty-cart">
+                    <div class="empty-cart-icon">🛒</div>
+                    <h2>Your cart is empty</h2>
+                    <p>Looks like you haven't added anything to your cart yet.</p>
+                    <a href="/shop" class="shop-now-btn">Continue Shopping</a>
+                </div>
+            <% } else { %>
+                <!-- Cart with Items -->
+                <div class="cart-content">
+                    <div class="cart-items">
+                        <% cartItems.forEach(item => { %>
+                            <div class="cart-item">
+                                <div class="item-image">
+                                    <% if (item.image) { %>
+                                        <img src="/uploads/<%= item.image %>" alt="<%= item.name %>">
+                                    <% } else { %>
+                                        <span>✨</span>
+                                    <% } %>
+                                </div>
+                                
+                                <div class="item-details">
+                                    <h3><%= item.name %></h3>
+                                    <div class="item-price"><%= currency %><%= item.price.toLocaleString('en-IN') %></div>
+                                </div>
+                                
+                                <div class="item-quantity">
+                                    <form action="/cart/update/<%= item.cartId %>" method="POST" class="quantity-form">
+                                        <input type="hidden" name="quantity" value="<%= Math.max(1, item.quantity - 1) %>">
+                                        <button type="submit" class="quantity-btn" <%= item.quantity <= 1 ? 'disabled' : '' %>>
+                                            <i class="fas fa-minus"></i>
+                                        </button>
+                                    </form>
+                                    
+                                    <span class="quantity-value"><%= item.quantity %></span>
+                                    
+                                    <form action="/cart/update/<%= item.cartId %>" method="POST" class="quantity-form">
+                                        <input type="hidden" name="quantity" value="<%= item.quantity + 1 %>">
+                                        <button type="submit" class="quantity-btn">
+                                            <i class="fas fa-plus"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                                
+                                <div class="item-total">
+                                    <%= currency %><%= (item.price * item.quantity).toLocaleString('en-IN') %>
+                                </div>
+                                
+                                <form action="/cart/remove/<%= item.cartId %>" method="POST" style="display: inline;">
+                                    <button type="submit" class="remove-item" title="Remove item">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        <% }) %>
+                    </div>
+                    
+                    <div class="cart-summary">
+                        <h3 class="summary-title">Order Summary</h3>
+                        
+                        <!-- Free Shipping Progress -->
+                        <div class="shipping-progress">
+                            <% const freeShippingThreshold = 999; %>
+                            <% const remainingForFree = Math.max(0, freeShippingThreshold - total); %>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: <%= Math.min(100, (total / freeShippingThreshold) * 100) %>%"></div>
+                            </div>
+                            <% if (total >= freeShippingThreshold) { %>
+                                <div class="shipping-message">
+                                    <i class="fas fa-check-circle" style="color: #2ecc71;"></i> You qualify for FREE shipping!
+                                </div>
+                            <% } else { %>
+                                <div class="shipping-message">
+                                    <i class="fas fa-truck"></i> Add <%= currency %><%= remainingForFree.toLocaleString('en-IN') %> more for FREE shipping
+                                </div>
+                            <% } %>
+                        </div>
+                        
+                        <div class="summary-row">
+                            <span>Subtotal:</span>
+                            <span><%= currency %><%= total.toLocaleString('en-IN') %></span>
+                        </div>
+                        
+                        <div class="summary-row">
+                            <span>Shipping:</span>
+                            <span><%= total >= 999 ? 'FREE' : currency + '99' %></span>
+                        </div>
+                        
+                        <% const shippingCost = total >= 999 ? 0 : 99; %>
+                        <% const finalTotal = total + shippingCost; %>
+                        
+                        <div class="summary-row total">
+                            <span>Total:</span>
+                            <span><%= currency %><%= finalTotal.toLocaleString('en-IN') %></span>
+                        </div>
+                        
+                        <a href="/checkout" class="checkout-btn">
+                            <i class="fas fa-lock"></i> Proceed to Checkout
+                        </a>
+                        
+                        <a href="/shop" class="continue-shopping">
+                            <i class="fas fa-arrow-left"></i> Continue Shopping
+                        </a>
+                    </div>
+                </div>
+            <% } %>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer" style="background: #0a0a0f; padding: 2rem 0; margin-top: 4rem; border-top: 1px solid rgba(155,89,182,0.3);">
+        <div class="container">
+            <div style="text-align: center; color: rgba(255,255,255,0.5);">
+                <p>© 2025 Moonlit Promise. All rights reserved. Designed by Dev Rick</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Add to cart animation
+        document.querySelectorAll('.add-to-cart-btn').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                const form = this.closest('form');
+                
+                // Create floating animation
+                const floatingEl = document.createElement('div');
+                floatingEl.textContent = '✨';
+                floatingEl.style.position = 'fixed';
+                floatingEl.style.left = e.clientX + 'px';
+                floatingEl.style.top = e.clientY + 'px';
+                floatingEl.style.fontSize = '2rem';
+                floatingEl.style.zIndex = '10000';
+                floatingEl.style.pointerEvents = 'none';
+                floatingEl.style.transition = 'all 1s ease';
+                document.body.appendChild(floatingEl);
+                
+                // Animate to cart
+                setTimeout(() => {
+                    floatingEl.style.transform = 'translate(100px, -100px) scale(0)';
+                    floatingEl.style.opacity = '0';
+                }, 100);
+                
+                // Submit form after animation
+                setTimeout(() => {
+                    document.body.removeChild(floatingEl);
+                    form.submit();
+                }, 1000);
+            });
+        });
+
+        // Quantity input validation
+        document.querySelectorAll('input[name="quantity"]').forEach(input => {
+            input.addEventListener('change', function() {
+                const value = parseInt(this.value);
+                if (isNaN(value) || value < 1) {
+                    this.value = 1;
+                }
+                this.closest('form').submit();
+            });
+        });
+
+        // Disable minus button at quantity 1
+        document.querySelectorAll('.quantity-btn').forEach(btn => {
+            const parent = btn.closest('.item-quantity');
+            if (parent) {
+                const quantityValue = parent.querySelector('.quantity-value');
+                if (quantityValue && parseInt(quantityValue.textContent) <= 1) {
+                    const minusBtn = parent.querySelector('.quantity-btn:first-child');
+                    if (minusBtn) {
+                        minusBtn.disabled = true;
+                        minusBtn.style.opacity = '0.5';
+                        minusBtn.style.cursor = 'not-allowed';
+                    }
+                }
+            }
+        });
+
+        // Particle effect
+        document.addEventListener('DOMContentLoaded', () => {
+            const particles = document.querySelector('.magical-particles');
+            for (let i = 0; i < 20; i++) {
+                const particle = document.createElement('div');
+                particle.classList.add('particle');
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.top = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 5 + 's';
+                particle.style.width = (Math.random() * 4 + 1) + 'px';
+                particle.style.height = particle.style.width;
+                particles.appendChild(particle);
+            }
+        });
+    </script>
+</body>
+</html>
