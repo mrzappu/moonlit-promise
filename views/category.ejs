@@ -6,9 +6,16 @@
     <title><%= category.name %> - Moonlit Promise</title>
     <link rel="stylesheet" href="/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
     <div class="magical-particles"></div>
+    
+    <div class="top-bar">
+        <div class="container">
+            <i class="fas fa-truck"></i> FREE SHIPPING on all orders above ₹999
+        </div>
+    </div>
     
     <nav class="navbar">
         <div class="nav-container">
@@ -34,39 +41,45 @@
                         <a href="/logout" class="logout-btn">Logout</a>
                     </div>
                 <% } else { %>
-                    <a href="/auth/discord" class="discord-btn">Login with Discord</a>
+                    <a href="/auth/discord" class="discord-btn">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 127.14 96.36">
+                            <path fill="#fff" d="M107.7,8.07A105.15,105.15,0,0,0,81.47,0a72.06,72.06,0,0,0-3.36,6.83A97.68,97.68,0,0,0,49,6.83,72.37,72.37,0,0,0,45.64,0,105.89,105.89,0,0,0,19.39,8.09C2.79,32.65-1.71,56.6.54,80.21h0A105.73,105.73,0,0,0,32.71,96.36,77.7,77.7,0,0,0,39.6,85.25a68.42,68.42,0,0,1-10.85-5.18c.91-.66,1.8-1.34,2.66-2a75.57,75.57,0,0,0,64.32,0c.87.71,1.76,1.39,2.66,2a68.68,68.68,0,0,1-10.87,5.19,77,77,0,0,0,6.89,11.1A105.25,105.25,0,0,0,126.6,80.22h0C129.24,53.84,122.09,29.11,107.7,8.07ZM42.45,65.69C36.18,65.69,31,60,31,53s5-12.74,11.43-12.74S54,46,53.89,53,48.84,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.25,60,73.25,53s5-12.74,11.44-12.74S96.23,46,96.12,53,91.08,65.69,84.69,65.69Z"/>
+                        </svg>
+                        Login
+                    </a>
                 <% } %>
             </div>
         </div>
     </nav>
 
     <main>
-        <div style="background: linear-gradient(135deg, #1a1a3a, #2a1a4a); padding: 3rem 2rem; text-align: center;">
-            <div style="font-size: 5rem; margin-bottom: 1rem;"><%= category.icon %></div>
-            <h1 style="font-size: 3rem;"><%= category.name %></h1>
+        <div class="category-header">
+            <div class="container">
+                <div class="category-icon"><%= category.icon %></div>
+                <h1><%= category.name %></h1>
+            </div>
         </div>
 
-        <div class="container" style="padding: 3rem 2rem;">
+        <div class="container">
             <% if (products.length === 0) { %>
-                <div style="text-align: center; padding: 4rem;">
-                    <div style="font-size: 4rem; margin-bottom: 1rem;">😢</div>
+                <div class="empty-state">
+                    <div class="empty-icon">📦</div>
                     <h2>No products found</h2>
-                    <p style="color: rgba(255,255,255,0.7);">Check back soon for new arrivals!</p>
+                    <p>Check back soon for new arrivals in this category!</p>
+                    <a href="/shop" class="btn btn-primary">Browse All</a>
                 </div>
             <% } else { %>
                 <div class="products-grid">
                     <% products.forEach(product => { %>
                         <div class="product-card">
                             <% if (product.stock < 5) { %>
-                                <div class="product-badge">Low Stock</div>
+                                <div class="product-badge low-stock">Low Stock</div>
                             <% } %>
                             <div class="product-image">
                                 <% if (product.image) { %>
                                     <img src="/uploads/<%= product.image %>" alt="<%= product.name %>">
                                 <% } else { %>
-                                    <div style="height: 200px; background: linear-gradient(135deg, #9b59b6, #8e44ad); display: flex; align-items: center; justify-content: center; font-size: 3rem;">
-                                        <%= category.icon %>
-                                    </div>
+                                    <div class="product-placeholder"><%= category.icon %></div>
                                 <% } %>
                             </div>
                             <div class="product-info">
@@ -84,10 +97,50 @@
         </div>
     </main>
 
-    <footer style="background: #0a0a0f; padding: 2rem 0; border-top: 1px solid rgba(155,89,182,0.3);">
-        <div class="container" style="text-align: center; color: rgba(255,255,255,0.5);">
-            <p>Dev Rick • Moonlit Promise</p>
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-bottom">
+                <p>© Copyright 2025 Moonlit Promise | All Rights Reserved. Designed by Dev Rick</p>
+            </div>
         </div>
     </footer>
+
+    <style>
+        .category-header {
+            background: linear-gradient(135deg, #1a1a3a, #2a1a4a);
+            padding: 3rem 0;
+            text-align: center;
+            border-bottom: 1px solid rgba(155,89,182,0.3);
+        }
+        .category-icon {
+            font-size: 5rem;
+            margin-bottom: 1rem;
+        }
+        .category-header h1 {
+            font-size: 2.5rem;
+            color: #f1c40f;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 4rem 0;
+        }
+        .empty-icon {
+            font-size: 5rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+        .btn-primary {
+            display: inline-block;
+            padding: 1rem 2rem;
+            background: linear-gradient(135deg, #9b59b6, #8e44ad);
+            color: white;
+            text-decoration: none;
+            border-radius: 10px;
+            margin-top: 1rem;
+        }
+        .products-grid {
+            padding: 3rem 0;
+        }
+    </style>
 </body>
 </html>
