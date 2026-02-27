@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= category.name %> - Moonlit Promise</title>
+    <link rel="stylesheet" href="/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="magical-particles"></div>
+    
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <img src="/moonlitpromise.png" alt="Moonlit Promise">
+            </div>
+            <ul class="nav-links">
+                <li><a href="/">Home</a></li>
+                <li><a href="/shop" class="active">Shop</a></li>
+                <li><a href="/cart">Cart</a></li>
+                <li><a href="/history">History</a></li>
+                <li><a href="/about">About</a></li>
+                <li><a href="/terms">Terms</a></li>
+                <% if (isAdmin) { %>
+                    <li><a href="/admin">Admin</a></li>
+                <% } %>
+            </ul>
+            <div class="auth-buttons">
+                <% if (user) { %>
+                    <div class="user-profile">
+                        <img src="https://cdn.discordapp.com/avatars/<%= user.id %>/<%= user.avatar %>.png" alt="Avatar">
+                        <span><%= user.username %></span>
+                        <a href="/logout" class="logout-btn">Logout</a>
+                    </div>
+                <% } else { %>
+                    <a href="/auth/discord" class="discord-btn">Login with Discord</a>
+                <% } %>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <div style="background: linear-gradient(135deg, #1a1a3a, #2a1a4a); padding: 3rem 2rem; text-align: center;">
+            <div style="font-size: 5rem; margin-bottom: 1rem;"><%= category.icon %></div>
+            <h1 style="font-size: 3rem;"><%= category.name %></h1>
+        </div>
+
+        <div class="container" style="padding: 3rem 2rem;">
+            <% if (products.length === 0) { %>
+                <div style="text-align: center; padding: 4rem;">
+                    <div style="font-size: 4rem; margin-bottom: 1rem;">😢</div>
+                    <h2>No products found</h2>
+                    <p style="color: rgba(255,255,255,0.7);">Check back soon for new arrivals!</p>
+                </div>
+            <% } else { %>
+                <div class="products-grid">
+                    <% products.forEach(product => { %>
+                        <div class="product-card">
+                            <% if (product.stock < 5) { %>
+                                <div class="product-badge">Low Stock</div>
+                            <% } %>
+                            <div class="product-image">
+                                <% if (product.image) { %>
+                                    <img src="/uploads/<%= product.image %>" alt="<%= product.name %>">
+                                <% } else { %>
+                                    <div style="height: 200px; background: linear-gradient(135deg, #9b59b6, #8e44ad); display: flex; align-items: center; justify-content: center; font-size: 3rem;">
+                                        <%= category.icon %>
+                                    </div>
+                                <% } %>
+                            </div>
+                            <div class="product-info">
+                                <h3><%= product.name %></h3>
+                                <p class="price"><%= currency %><%= product.price.toLocaleString('en-IN') %></p>
+                                <p class="description"><%= product.description.substring(0, 60) %>...</p>
+                                <form action="/cart/add/<%= product.id %>" method="POST">
+                                    <button type="submit" class="add-to-cart-btn">Add to Cart</button>
+                                </form>
+                            </div>
+                        </div>
+                    <% }) %>
+                </div>
+            <% } %>
+        </div>
+    </main>
+
+    <footer style="background: #0a0a0f; padding: 2rem 0; border-top: 1px solid rgba(155,89,182,0.3);">
+        <div class="container" style="text-align: center; color: rgba(255,255,255,0.5);">
+            <p>Dev Rick • Moonlit Promise</p>
+        </div>
+    </footer>
+</body>
+</html>
