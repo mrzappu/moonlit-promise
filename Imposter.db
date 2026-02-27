@@ -1,0 +1,95 @@
+-- Users table
+CREATE TABLE users (
+    id TEXT PRIMARY KEY,
+    username TEXT,
+    avatar TEXT,
+    address TEXT,
+    phone TEXT,
+    fullName TEXT,
+    pincode TEXT,
+    isPhoneVerified INTEGER DEFAULT 0,
+    totalOrders INTEGER DEFAULT 0,
+    lastLogin DATETIME,
+    createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Products table
+CREATE TABLE products (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    price INTEGER NOT NULL,
+    description TEXT,
+    image TEXT,
+    category TEXT,
+    stock INTEGER DEFAULT 10,
+    soldCount INTEGER DEFAULT 0,
+    isPublic INTEGER DEFAULT 1,
+    createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Categories table
+CREATE TABLE categories (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    slug TEXT UNIQUE NOT NULL,
+    icon TEXT,
+    displayOrder INTEGER DEFAULT 0
+);
+
+-- Cart table
+CREATE TABLE cart (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    userId TEXT NOT NULL,
+    productId INTEGER NOT NULL,
+    quantity INTEGER DEFAULT 1,
+    addedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (userId) REFERENCES users(id),
+    FOREIGN KEY (productId) REFERENCES products(id)
+);
+
+-- Orders table
+CREATE TABLE orders (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    orderNumber TEXT UNIQUE NOT NULL,
+    userId TEXT NOT NULL,
+    items TEXT NOT NULL,
+    totalAmount INTEGER NOT NULL,
+    paymentMethod TEXT DEFAULT 'cod',
+    paymentStatus TEXT DEFAULT 'pending',
+    orderStatus TEXT DEFAULT 'pending',
+    address TEXT,
+    phone TEXT,
+    fullName TEXT,
+    pincode TEXT,
+    trackingQR TEXT,
+    qrCodePath TEXT,
+    deliveryTracking TEXT,
+    courierName TEXT,
+    estimatedDelivery DATE,
+    deliveredAt DATETIME,
+    createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (userId) REFERENCES users(id)
+);
+
+-- QR Payments table
+CREATE TABLE qr_payments (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    order_id TEXT NOT NULL,
+    amount INTEGER NOT NULL,
+    upi_link TEXT,
+    qr_code TEXT,
+    utr_number TEXT,
+    status TEXT DEFAULT 'pending',
+    verified_at DATETIME,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- OTP Requests table
+CREATE TABLE otp_requests (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    phone TEXT NOT NULL,
+    otp TEXT NOT NULL,
+    is_used INTEGER DEFAULT 0,
+    expires_at DATETIME,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
