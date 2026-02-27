@@ -1,4 +1,3 @@
-// bot.js - Discord bot with all logging capabilities
 const { Client, GatewayIntentBits, EmbedBuilder } = require('discord.js');
 const config = require('./config');
 const Logger = require('./logger');
@@ -21,9 +20,6 @@ client.login(config.BOT_TOKEN).catch(err => {
 });
 
 const DiscordLogger = {
-    /**
-     * LOGIN LOG - When user logs in
-     */
     async sendLoginLog(userData, ip = 'Unknown') {
         const channel = client.channels.cache.get(config.LOGIN_LOG_CHANNEL);
         if (!channel) return;
@@ -47,9 +43,6 @@ const DiscordLogger = {
         Logger.login(userData.id, userData.username, ip, { avatar: userData.avatar });
     },
 
-    /**
-     * ORDER LOG - When new order is placed
-     */
     async sendOrderLog(order, user, items) {
         const channel = client.channels.cache.get(config.ORDER_LOG_CHANNEL);
         if (!channel) return;
@@ -90,9 +83,6 @@ const DiscordLogger = {
         });
     },
 
-    /**
-     * PAYMENT LOG - Payment confirmation
-     */
     async sendPaymentLog(order, user, paymentDetails) {
         const channel = client.channels.cache.get(config.PAYMENT_LOG_CHANNEL);
         if (!channel) return;
@@ -140,9 +130,6 @@ const DiscordLogger = {
         }
     },
 
-    /**
-     * DELIVERY LOG - Delivery status updates
-     */
     async sendDeliveryLog(order, user, deliveryStatus) {
         const channel = client.channels.cache.get(config.DELIVERY_LOG_CHANNEL);
         if (!channel) return;
@@ -224,9 +211,6 @@ const DiscordLogger = {
         }
     },
 
-    /**
-     * ADMIN LOG - Admin actions
-     */
     async sendAdminLog(admin, action, details, targetUser = null) {
         const channel = client.channels.cache.get(config.ADMIN_LOG_CHANNEL);
         if (!channel) return;
@@ -254,9 +238,6 @@ const DiscordLogger = {
         Logger.adminAction(admin.id, admin.username, action, { details, targetUser });
     },
 
-    /**
-     * ADDRESS CONFIRMATION LOG
-     */
     async sendAddressConfirmationLog(order, user) {
         const channel = client.channels.cache.get(config.ORDER_LOG_CHANNEL);
         if (!channel) return;
