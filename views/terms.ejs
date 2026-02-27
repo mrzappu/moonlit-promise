@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terms & Conditions - Moonlit Promise</title>
+    <link rel="stylesheet" href="/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .terms-container {
+            max-width: 1000px;
+            margin: 4rem auto;
+            padding: 0 2rem;
+        }
+
+        .terms-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .terms-header h1 {
+            font-size: 3rem;
+            background: linear-gradient(135deg, #fff, #ffd7ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1rem;
+        }
+
+        .terms-header p {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 1.1rem;
+        }
+
+        .last-updated {
+            color: #f1c40f;
+            font-size: 0.95rem;
+            margin-top: 1rem;
+        }
+
+        .terms-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 2rem;
+            margin: 3rem 0;
+        }
+
+        .term-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2rem;
+            border: 1px solid rgba(155, 89, 182, 0.3);
+            transition: transform 0.3s ease;
+        }
+
+        .term-card:hover {
+            transform: translateY(-5px);
+            border-color: #9b59b6;
+        }
+
+        .term-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .term-card h2 {
+            color: #f1c40f;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .term-card p {
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.8;
+        }
+
+        .term-card ul {
+            color: rgba(255, 255, 255, 0.8);
+            padding-left: 1.5rem;
+            line-height: 1.8;
+        }
+
+        .term-card li {
+            margin-bottom: 0.5rem;
+        }
+
+        .highlight-card {
+            background: linear-gradient(135deg, rgba(155, 89, 182, 0.2), rgba(142, 68, 173, 0.2));
+            border: 2px solid #f1c40f;
+        }
+
+        .highlight-card h2 {
+            color: #f1c40f;
+        }
+
+        .terms-footer {
+            text-align: center;
+            margin-top: 4rem;
+            padding: 3rem;
+            background: rgba(155, 89, 182, 0.1);
+            border-radius: 20px;
+            border: 1px solid rgba(155, 89, 182, 0.3);
+        }
+
+        .terms-footer h3 {
+            color: #f1c40f;
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+        }
+
+        .terms-footer p {
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 2rem;
+        }
+
+        .accept-btn {
+            padding: 1rem 3rem;
+            background: linear-gradient(135deg, #9b59b6, #8e44ad);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .accept-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(155, 89, 182, 0.4);
+        }
+
+        @media (max-width: 768px) {
+            .terms-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .terms-header h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="magical-particles"></div>
+    
+    <!-- Top Bar -->
+    <div class="top-bar">
+        <div class="container">
+            <i class="fas fa-truck"></i> FREE SHIPPING on all orders above ₹999 | All India Delivery
+        </div>
+    </div>
+    
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <img src="/moonlitpromise.png" alt="Moonlit Promise">
+            </div>
+            <ul class="nav-links">
+                <li><a href="/">Home</a></li>
+                <li><a href="/shop">Shop</a></li>
+                <li><a href="/cart">Cart</a></li>
+                <li><a href="/history">History</a></li>
+                <li><a href="/about">About</a></li>
+                <li><a href="/terms" class="active">Terms</a></li>
+                <% if (isAdmin) { %>
+                    <li><a href="/admin">Admin</a></li>
+                <% } %>
+            </ul>
+            <div class="auth-buttons">
+                <% if (user) { %>
+                    <div class="user-profile">
+                        <img src="https://cdn.discordapp.com/avatars/<%= user.id %>/<%= user.avatar %>.png" alt="Avatar">
+                        <span><%= user.username %></span>
+                        <a href="/logout" class="logout-btn">Logout</a>
+                    </div>
+                <% } else { %>
+                    <a href="/auth/discord" class="discord-btn">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 127.14 96.36">
+                            <path fill="#fff" d="M107.7,8.07A105.15,105.15,0,0,0,81.47,0a72.06,72.06,0,0,0-3.36,6.83A97.68,97.68,0,0,0,49,6.83,72.37,72.37,0,0,0,45.64,0,105.89,105.89,0,0,0,19.39,8.09C2.79,32.65-1.71,56.6.54,80.21h0A105.73,105.73,0,0,0,32.71,96.36,77.7,77.7,0,0,0,39.6,85.25a68.42,68.42,0,0,1-10.85-5.18c.91-.66,1.8-1.34,2.66-2a75.57,75.57,0,0,0,64.32,0c.87.71,1.76,1.39,2.66,2a68.68,68.68,0,0,1-10.87,5.19,77,77,0,0,0,6.89,11.1A105.25,105.25,0,0,0,126.6,80.22h0C129.24,53.84,122.09,29.11,107.7,8.07ZM42.45,65.69C36.18,65.69,31,60,31,53s5-12.74,11.43-12.74S54,46,53.89,53,48.84,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.25,60,73.25,53s5-12.74,11.44-12.74S96.23,46,96.12,53,91.08,65.69,84.69,65.69Z"/>
+                        </svg>
+                        Login
+                    </a>
+                <% } %>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <div class="terms-container">
+            <!-- Header -->
+            <div class="terms-header">
+                <h1><i class="fas fa-file-contract"></i> Terms & Conditions</h1>
+                <p>Please read these terms carefully before using our services</p>
+                <div class="last-updated">Last Updated: February 27, 2025</div>
+            </div>
+
+            <!-- Terms Grid -->
+            <div class="terms-grid">
+                <!-- Shipping Policy -->
+                <div class="term-card">
+                    <div class="term-icon">🚚</div>
+                    <h2>Shipping Policy</h2>
+                    <ul>
+                        <li>Free shipping on all orders above ₹999</li>
+                        <li>Standard delivery: 3-7 business days</li>
+                        <li>All India delivery available</li>
+                        <li>Tracking ID provided for all orders</li>
+                        <li>Shipping charges: ₹99 for orders below ₹999</li>
+                    </ul>
+                </div>
+
+                <!-- Payment Terms -->
+                <div class="term-card">
+                    <div class="term-icon">💳</div>
+                    <h2>Payment Terms</h2>
+                    <ul>
+                        <li>Cash on Delivery (COD) available</li>
+                        <li>Online payments via UPI, Cards, NetBanking</li>
+                        <li>Full payment required before shipping for online orders</li>
+                        <li>COD orders require phone verification via OTP</li>
+                        <li>All transactions are secure and encrypted</li>
+                    </ul>
+                </div>
+
+                <!-- Return & Refund -->
+                <div class="term-card">
+                    <div class="term-icon">🔄</div>
+                    <h2>Return & Refund</h2>
+                    <ul>
+                        <li>7-day return policy for unused items</li>
+                        <li>Items must be in original condition with tags</li>
+                        <li>Refund processed within 5-7 business days</li>
+                        <li>Digital products are non-refundable</li>
+                        <li>Customized items cannot be returned</li>
+                    </ul>
+                </div>
+
+                <!-- Cancellation Policy -->
+                <div class="term-card">
+                    <div class="term-icon">❌</div>
+                    <h2>Cancellation Policy</h2>
+                    <ul>
+                        <li>Orders can be cancelled within 24 hours</li>
+                        <li>No cancellation fee within 24 hours</li>
+                        <li>COD orders can be cancelled anytime before shipping</li>
+                        <li>Contact support for cancellation requests</li>
+                    </ul>
+                </div>
+
+                <!-- Privacy Policy -->
+                <div class="term-card">
+                    <div class="term-icon">🔒</div>
+                    <h2>Privacy Policy</h2>
+                    <ul>
+                        <li>We never share your personal information</li>
+                        <li>Secure storage of all customer data</li>
+                        <li>Optional marketing communications</li>
+                        <li>GDPR compliant data handling</li>
+                    </ul>
+                </div>
+
+                <!-- User Conduct -->
+                <div class="term-card">
+                    <div class="term-icon">🤝</div>
+                    <h2>User Conduct</h2>
+                    <ul>
+                        <li>Respectful communication with staff</li>
+                        <li>No fraudulent transactions</li>
+                        <li>Accurate information during checkout</li>
+                        <li>One account per user</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Important Terms Card -->
+            <div class="term-card highlight-card">
+                <div class="term-icon">⚠️</div>
+                <h2>Important - Please Note</h2>
+                <ul>
+                    <li><strong>No fake proofs:</strong> All payment proofs must be genuine</li>
+                    <li><strong>No chargebacks:</strong> Contact us first for any issues</li>
+                    <li><strong>Refund only if not delivered:</strong> Refunds processed only for undelivered items</li>
+                    <li><strong>Respect staff:</strong> Professional behavior expected at all times</li>
+                    <li><strong>Digital products non-refundable:</strong> All digital items are final sale</li>
+                    <li><strong>Fast support 1–24 hours:</strong> We respond within 24 hours</li>
+                </ul>
+            </div>
+
+            <!-- Footer -->
+            <div class="terms-footer">
+                <h3>Agree to Terms</h3>
+                <p>By using Moonlit Promise, you agree to all terms and conditions stated above.</p>
+                <button class="accept-btn" onclick="acceptTerms()">
+                    <i class="fas fa-check-circle"></i> I Accept
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer" style="background: #0a0a0f; padding: 2rem 0; margin-top: 4rem; border-top: 1px solid rgba(155,89,182,0.3);">
+        <div class="container">
+            <div style="text-align: center; color: rgba(255,255,255,0.5);">
+                <p>© 2025 Moonlit Promise. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        function acceptTerms() {
+            alert('Thank you for accepting our terms and conditions!');
+            // Could redirect or store acceptance in localStorage
+        }
+
+        // Particle effect
+        document.addEventListener('DOMContentLoaded', () => {
+            const particles = document.querySelector('.magical-particles');
+            for (let i = 0; i < 20; i++) {
+                const particle = document.createElement('div');
+                particle.classList.add('particle');
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.top = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 5 + 's';
+                particle.style.width = (Math.random() * 4 + 1) + 'px';
+                particle.style.height = particle.style.width;
+                particles.appendChild(particle);
+            }
+        });
+    </script>
+</body>
+</html>
