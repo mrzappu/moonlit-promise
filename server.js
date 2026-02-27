@@ -1,4 +1,3 @@
-// server.js - Complete server with all features
 const express = require('express');
 const session = require('express-session');
 const multer = require('multer');
@@ -6,7 +5,6 @@ const path = require('path');
 const fs = require('fs');
 const axios = require('axios');
 const Database = require('better-sqlite3');
-const QRCode = require('qrcode');
 const cron = require('node-cron');
 const config = require('./config');
 const Logger = require('./logger');
@@ -1008,7 +1006,7 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log('\n');
     console.log('✨'.repeat(50));
-    console.log('✨           MOONLIT PROMISE - PRODUCTION READY           ✨');
+    console.log('✨           MOONLIT PROMISE - DM3 STYLE READY           ✨');
     console.log('✨'.repeat(50));
     console.log(`\n📡 Server running on port ${PORT}`);
     console.log(`🌐 URL: http://localhost:${PORT}`);
