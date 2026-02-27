@@ -7,201 +7,6 @@
     <link rel="stylesheet" href="/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        .admin-container {
-            max-width: 1400px;
-            margin: 2rem auto;
-            padding: 0 2rem;
-        }
-        
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-        }
-        
-        .stat-card {
-            background: rgba(255,255,255,0.05);
-            backdrop-filter: blur(10px);
-            border-radius: 15px;
-            padding: 1.5rem;
-            border: 1px solid rgba(155,89,182,0.3);
-        }
-        
-        .stat-value {
-            font-size: 2.5rem;
-            font-weight: bold;
-            color: #f1c40f;
-        }
-        
-        .tabs {
-            display: flex;
-            gap: 0.5rem;
-            margin-bottom: 2rem;
-            border-bottom: 1px solid rgba(155,89,182,0.3);
-            padding-bottom: 1rem;
-            flex-wrap: wrap;
-        }
-        
-        .tab-btn {
-            background: none;
-            border: none;
-            color: white;
-            padding: 0.8rem 1.5rem;
-            cursor: pointer;
-            border-radius: 30px;
-            transition: all 0.3s;
-            font-size: 0.95rem;
-        }
-        
-        .tab-btn:hover {
-            background: rgba(155,89,182,0.2);
-        }
-        
-        .tab-btn.active {
-            background: #9b59b6;
-            color: white;
-        }
-        
-        .tab-content {
-            display: none;
-        }
-        
-        .tab-content.active {
-            display: block;
-        }
-        
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            background: rgba(255,255,255,0.02);
-            border-radius: 15px;
-            overflow: hidden;
-        }
-        
-        th {
-            background: rgba(155,89,182,0.2);
-            padding: 1rem;
-            text-align: left;
-            font-weight: 600;
-            color: #f1c40f;
-        }
-        
-        td {
-            padding: 1rem;
-            border-bottom: 1px solid rgba(155,89,182,0.2);
-        }
-        
-        .log-container {
-            background: rgba(0,0,0,0.3);
-            border-radius: 10px;
-            padding: 1rem;
-            max-height: 400px;
-            overflow-y: auto;
-            font-family: monospace;
-            font-size: 0.9rem;
-        }
-        
-        .log-line {
-            padding: 0.3rem 0;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-            color: rgba(255,255,255,0.8);
-        }
-        
-        .log-time {
-            color: #f1c40f;
-            margin-right: 1rem;
-        }
-        
-        .btn {
-            padding: 0.4rem 1rem;
-            border-radius: 5px;
-            border: none;
-            cursor: pointer;
-            font-size: 0.9rem;
-            margin: 0.2rem;
-            text-decoration: none;
-            display: inline-block;
-        }
-        
-        .btn-primary {
-            background: #9b59b6;
-            color: white;
-        }
-        
-        .btn-success {
-            background: rgba(46,204,113,0.2);
-            color: #2ecc71;
-            border: 1px solid #2ecc71;
-        }
-        
-        .btn-danger {
-            background: rgba(231,76,60,0.2);
-            color: #e74c3c;
-            border: 1px solid #e74c3c;
-        }
-        
-        .btn-warning {
-            background: rgba(241,196,15,0.2);
-            color: #f1c40f;
-            border: 1px solid #f1c40f;
-        }
-        
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.8);
-            z-index: 10000;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .modal.active {
-            display: flex;
-        }
-        
-        .modal-content {
-            background: linear-gradient(135deg, #1a1a3a, #2a1a4a);
-            padding: 2rem;
-            border-radius: 20px;
-            max-width: 500px;
-            width: 90%;
-            border: 2px solid #9b59b6;
-        }
-        
-        .form-group {
-            margin-bottom: 1rem;
-        }
-        
-        .form-group label {
-            display: block;
-            margin-bottom: 0.5rem;
-            color: #f1c40f;
-        }
-        
-        .form-group input,
-        .form-group select,
-        .form-group textarea {
-            width: 100%;
-            padding: 0.8rem;
-            background: rgba(255,255,255,0.1);
-            border: 1px solid #9b59b6;
-            border-radius: 10px;
-            color: white;
-        }
-        
-        .form-group input:focus,
-        .form-group select:focus,
-        .form-group textarea:focus {
-            outline: none;
-            border-color: #f1c40f;
-        }
-    </style>
 </head>
 <body>
     <div class="magical-particles"></div>
@@ -237,23 +42,23 @@
         <!-- Stats Cards -->
         <div class="stats-grid">
             <div class="stat-card">
-                <div style="font-size: 0.9rem; color: rgba(255,255,255,0.7);">Total Users</div>
+                <div>Total Users</div>
                 <div class="stat-value"><%= stats.totalUsers %></div>
             </div>
             <div class="stat-card">
-                <div style="font-size: 0.9rem; color: rgba(255,255,255,0.7);">Total Orders</div>
+                <div>Total Orders</div>
                 <div class="stat-value"><%= stats.totalOrders %></div>
             </div>
             <div class="stat-card">
-                <div style="font-size: 0.9rem; color: rgba(255,255,255,0.7);">Revenue</div>
+                <div>Revenue</div>
                 <div class="stat-value"><%= currency %><%= (stats.totalRevenue || 0).toLocaleString('en-IN') %></div>
             </div>
             <div class="stat-card">
-                <div style="font-size: 0.9rem; color: rgba(255,255,255,0.7);">Pending</div>
+                <div>Pending</div>
                 <div class="stat-value"><%= stats.pendingOrders %></div>
             </div>
             <div class="stat-card">
-                <div style="font-size: 0.9rem; color: rgba(255,255,255,0.7);">Products</div>
+                <div>Products</div>
                 <div class="stat-value"><%= stats.totalProducts %></div>
             </div>
         </div>
@@ -269,8 +74,8 @@
         
         <!-- Orders Tab -->
         <div id="orders-tab" class="tab-content active">
-            <h2 style="margin-bottom: 1rem;">Manage Orders</h2>
-            <div style="overflow-x: auto;">
+            <h2>Manage Orders</h2>
+            <div class="table-container">
                 <table>
                     <thead>
                         <tr>
@@ -287,26 +92,15 @@
                         <% orders.forEach(order => { %>
                             <tr>
                                 <td><%= order.orderNumber %></td>
-                                <td>
-                                    <div><%= order.fullName %></div>
-                                    <small style="color: rgba(255,255,255,0.5);"><%= order.phone %></small>
-                                </td>
+                                <td><%= order.fullName %><br><small><%= order.phone %></small></td>
                                 <td><%= currency %><%= order.totalAmount.toLocaleString('en-IN') %></td>
                                 <td>
-                                    <span style="background: <%= order.paymentStatus === 'completed' ? 'rgba(46,204,113,0.2)' : 'rgba(241,196,15,0.2)' %>; color: <%= order.paymentStatus === 'completed' ? '#2ecc71' : '#f1c40f' %>; padding: 0.2rem 0.5rem; border-radius: 5px;">
+                                    <span class="payment-badge <%= order.paymentStatus %>">
                                         <%= order.paymentMethod %> - <%= order.paymentStatus %>
                                     </span>
                                 </td>
                                 <td>
-                                    <span style="background: 
-                                        <%= order.orderStatus === 'delivered' ? 'rgba(46,204,113,0.2)' : 
-                                           order.orderStatus === 'cancelled' ? 'rgba(231,76,60,0.2)' : 
-                                           'rgba(241,196,15,0.2)' %>; 
-                                        color: 
-                                        <%= order.orderStatus === 'delivered' ? '#2ecc71' : 
-                                           order.orderStatus === 'cancelled' ? '#e74c3c' : 
-                                           '#f1c40f' %>; 
-                                        padding: 0.2rem 0.5rem; border-radius: 5px;">
+                                    <span class="status-badge <%= order.orderStatus %>">
                                         <%= order.orderStatus %>
                                     </span>
                                 </td>
@@ -324,11 +118,11 @@
         
         <!-- Products Tab -->
         <div id="products-tab" class="tab-content">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <div class="tab-header">
                 <h2>Manage Products</h2>
-                <a href="/admin/product/new" class="btn btn-primary" style="padding: 0.8rem 1.5rem;">+ Add New Product</a>
+                <a href="/admin/product/new" class="btn btn-primary">+ Add New Product</a>
             </div>
-            <div style="overflow-x: auto;">
+            <div class="table-container">
                 <table>
                     <thead>
                         <tr>
@@ -348,9 +142,9 @@
                                 <td><%= product.id %></td>
                                 <td>
                                     <% if (product.image) { %>
-                                        <img src="/uploads/<%= product.image %>" style="width: 50px; height: 50px; object-fit: cover; border-radius: 5px;">
+                                        <img src="/uploads/<%= product.image %>" class="product-thumb">
                                     <% } else { %>
-                                        <span style="font-size: 2rem;">✨</span>
+                                        <span class="product-placeholder">📷</span>
                                     <% } %>
                                 </td>
                                 <td><%= product.name %></td>
@@ -373,8 +167,8 @@
         
         <!-- Users Tab -->
         <div id="users-tab" class="tab-content">
-            <h2 style="margin-bottom: 1rem;">Users</h2>
-            <div style="overflow-x: auto;">
+            <h2>Users</h2>
+            <div class="table-container">
                 <table>
                     <thead>
                         <tr>
@@ -396,9 +190,9 @@
                                 <td><%= user.phone || 'N/A' %></td>
                                 <td>
                                     <% if (user.isPhoneVerified) { %>
-                                        <span style="color: #2ecc71;">✅ Verified</span>
+                                        <span class="verified">✅ Verified</span>
                                     <% } else { %>
-                                        <span style="color: #e74c3c;">❌ Not Verified</span>
+                                        <span class="not-verified">❌ Not Verified</span>
                                     <% } %>
                                 </td>
                                 <td><%= user.totalOrders || 0 %></td>
@@ -412,25 +206,16 @@
         
         <!-- Categories Tab -->
         <div id="categories-tab" class="tab-content">
-            <h2 style="margin-bottom: 1rem;">Categories</h2>
-            <div style="margin-bottom: 2rem;">
-                <form action="/admin/category/add" method="POST" style="display: flex; gap: 1rem; align-items: flex-end;">
-                    <div style="flex: 1;">
-                        <label>Category Name</label>
-                        <input type="text" name="name" required style="width: 100%; padding: 0.8rem; background: rgba(255,255,255,0.1); border: 1px solid #9b59b6; border-radius: 10px; color: white;">
-                    </div>
-                    <div style="flex: 1;">
-                        <label>Slug</label>
-                        <input type="text" name="slug" required style="width: 100%; padding: 0.8rem; background: rgba(255,255,255,0.1); border: 1px solid #9b59b6; border-radius: 10px; color: white;">
-                    </div>
-                    <div style="flex: 0.5;">
-                        <label>Icon (emoji)</label>
-                        <input type="text" name="icon" required style="width: 100%; padding: 0.8rem; background: rgba(255,255,255,0.1); border: 1px solid #9b59b6; border-radius: 10px; color: white;">
-                    </div>
-                    <button type="submit" class="btn btn-success" style="padding: 0.8rem 2rem;">Add Category</button>
+            <h2>Categories</h2>
+            <div class="add-category-form">
+                <form action="/admin/category/add" method="POST">
+                    <input type="text" name="name" placeholder="Category Name" required>
+                    <input type="text" name="slug" placeholder="Slug" required>
+                    <input type="text" name="icon" placeholder="Icon (emoji)" required>
+                    <button type="submit" class="btn btn-success">Add Category</button>
                 </form>
             </div>
-            <div style="overflow-x: auto;">
+            <div class="table-container">
                 <table>
                     <thead>
                         <tr>
@@ -458,9 +243,9 @@
         
         <!-- Logs Tab -->
         <div id="logs-tab" class="tab-content">
-            <h2 style="margin-bottom: 1rem;">System Logs</h2>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-                <div>
+            <h2>System Logs</h2>
+            <div class="logs-grid">
+                <div class="log-section">
                     <h3>Login Logs</h3>
                     <div class="log-container">
                         <% if (recentLogs.login && recentLogs.login.length > 0) { %>
@@ -472,7 +257,7 @@
                         <% } %>
                     </div>
                 </div>
-                <div>
+                <div class="log-section">
                     <h3>Order Logs</h3>
                     <div class="log-container">
                         <% if (recentLogs.orders && recentLogs.orders.length > 0) { %>
@@ -484,30 +269,6 @@
                         <% } %>
                     </div>
                 </div>
-                <div>
-                    <h3>Payment Logs</h3>
-                    <div class="log-container">
-                        <% if (recentLogs.payments && recentLogs.payments.length > 0) { %>
-                            <% recentLogs.payments.forEach(log => { %>
-                                <div class="log-line"><%= log %></div>
-                            <% }) %>
-                        <% } else { %>
-                            <div class="log-line">No payment logs found</div>
-                        <% } %>
-                    </div>
-                </div>
-                <div>
-                    <h3>Delivery Logs</h3>
-                    <div class="log-container">
-                        <% if (recentLogs.deliveries && recentLogs.deliveries.length > 0) { %>
-                            <% recentLogs.deliveries.forEach(log => { %>
-                                <div class="log-line"><%= log %></div>
-                            <% }) %>
-                        <% } else { %>
-                            <div class="log-line">No delivery logs found</div>
-                        <% } %>
-                    </div>
-                </div>
             </div>
         </div>
     </main>
@@ -515,7 +276,7 @@
     <!-- Order Update Modal -->
     <div id="orderModal" class="modal">
         <div class="modal-content">
-            <h2 style="margin-bottom: 1rem;">Update Order <span id="modalOrderNumber"></span></h2>
+            <h2>Update Order <span id="modalOrderNumber"></span></h2>
             <form id="orderUpdateForm" method="POST">
                 <div class="form-group">
                     <label>Order Status</label>
@@ -548,19 +309,190 @@
                     <label>Notes</label>
                     <textarea name="notes" id="notes" rows="3"></textarea>
                 </div>
-                <div style="display: flex; gap: 1rem;">
-                    <button type="submit" class="btn btn-success" style="flex: 1;">Update</button>
-                    <button type="button" onclick="closeModal()" class="btn btn-danger" style="flex: 1;">Cancel</button>
+                <div class="modal-actions">
+                    <button type="submit" class="btn btn-success">Update</button>
+                    <button type="button" onclick="closeModal()" class="btn btn-danger">Cancel</button>
                 </div>
             </form>
         </div>
     </div>
 
+    <style>
+        .admin-container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .stat-card {
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            padding: 1.5rem;
+            border: 1px solid rgba(155,89,182,0.3);
+        }
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #f1c40f;
+        }
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid rgba(155,89,182,0.3);
+            padding-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+        .tab-btn {
+            background: none;
+            border: none;
+            color: white;
+            padding: 0.8rem 1.5rem;
+            cursor: pointer;
+            border-radius: 30px;
+            transition: all 0.3s;
+        }
+        .tab-btn:hover { background: rgba(155,89,182,0.2); }
+        .tab-btn.active { background: #9b59b6; color: white; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .table-container { overflow-x: auto; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: rgba(255,255,255,0.02);
+            border-radius: 15px;
+            overflow: hidden;
+        }
+        th {
+            background: rgba(155,89,182,0.2);
+            padding: 1rem;
+            text-align: left;
+            color: #f1c40f;
+        }
+        td { padding: 1rem; border-bottom: 1px solid rgba(155,89,182,0.2); }
+        .log-container {
+            background: rgba(0,0,0,0.3);
+            border-radius: 10px;
+            padding: 1rem;
+            max-height: 400px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 0.9rem;
+        }
+        .log-line { padding: 0.3rem 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .btn {
+            padding: 0.4rem 1rem;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            font-size: 0.9rem;
+            margin: 0.2rem;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn-primary { background: #9b59b6; color: white; }
+        .btn-success { background: rgba(46,204,113,0.2); color: #2ecc71; border: 1px solid #2ecc71; }
+        .btn-danger { background: rgba(231,76,60,0.2); color: #e74c3c; border: 1px solid #e74c3c; }
+        .btn-warning { background: rgba(241,196,15,0.2); color: #f1c40f; border: 1px solid #f1c40f; }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 10000;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal.active { display: flex; }
+        .modal-content {
+            background: linear-gradient(135deg, #1a1a3a, #2a1a4a);
+            padding: 2rem;
+            border-radius: 20px;
+            max-width: 500px;
+            width: 90%;
+            border: 2px solid #9b59b6;
+        }
+        .form-group { margin-bottom: 1rem; }
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #f1c40f;
+        }
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.8rem;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid #9b59b6;
+            border-radius: 10px;
+            color: white;
+        }
+        .product-thumb { width: 50px; height: 50px; object-fit: cover; border-radius: 5px; }
+        .tab-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        .add-category-form {
+            margin-bottom: 2rem;
+        }
+        .add-category-form form {
+            display: flex;
+            gap: 1rem;
+            align-items: flex-end;
+        }
+        .add-category-form input {
+            flex: 1;
+            padding: 0.8rem;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid #9b59b6;
+            border-radius: 10px;
+            color: white;
+        }
+        .logs-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        .payment-badge, .status-badge {
+            padding: 0.2rem 0.5rem;
+            border-radius: 5px;
+            font-size: 0.9rem;
+        }
+        .payment-badge.completed { background: rgba(46,204,113,0.2); color: #2ecc71; }
+        .payment-badge.pending { background: rgba(241,196,15,0.2); color: #f1c40f; }
+        .status-badge.delivered { background: rgba(46,204,113,0.2); color: #2ecc71; }
+        .status-badge.cancelled { background: rgba(231,76,60,0.2); color: #e74c3c; }
+        .status-badge.pending { background: rgba(241,196,15,0.2); color: #f1c40f; }
+        .status-badge.shipped { background: rgba(52,152,219,0.2); color: #3498db; }
+        .verified { color: #2ecc71; }
+        .not-verified { color: #e74c3c; }
+        .modal-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        .modal-actions button {
+            flex: 1;
+            padding: 1rem;
+        }
+    </style>
+
     <script>
         function showTab(tabName) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
-            
             document.getElementById(tabName + '-tab').classList.add('active');
             event.target.classList.add('active');
         }
@@ -568,10 +500,7 @@
         function updateOrder(orderId, orderNumber, currentStatus, paymentStatus) {
             document.getElementById('orderModal').classList.add('active');
             document.getElementById('modalOrderNumber').textContent = orderNumber;
-            
-            const form = document.getElementById('orderUpdateForm');
-            form.action = `/admin/order/update/${orderId}`;
-            
+            document.getElementById('orderUpdateForm').action = `/admin/order/update/${orderId}`;
             document.getElementById('orderStatus').value = currentStatus;
             document.getElementById('paymentStatus').value = paymentStatus;
         }
@@ -580,12 +509,9 @@
             document.getElementById('orderModal').classList.remove('active');
         }
         
-        // Close modal when clicking outside
         window.onclick = function(event) {
             const modal = document.getElementById('orderModal');
-            if (event.target === modal) {
-                closeModal();
-            }
+            if (event.target === modal) closeModal();
         }
     </script>
 </body>
