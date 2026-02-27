@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order History - Moonlit Promise</title>
+    <link rel="stylesheet" href="/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="magical-particles"></div>
+    
+    <nav class="navbar">
+        <!-- Same navbar structure -->
+        <div class="nav-container">
+            <div class="logo">
+                <h1>Moonlit<span>Promise</span></h1>
+                <div class="moon-glow"></div>
+            </div>
+            <ul class="nav-links">
+                <li><a href="/">Home</a></li>
+                <li><a href="/shop">Shop</a></li>
+                <li><a href="/cart">Cart</a></li>
+                <li><a href="/history" class="active">History</a></li>
+                <li><a href="/about">About</a></li>
+                <li><a href="/terms">Terms</a></li>
+                <% if (user && user.id === 'your_admin_id_here') { %>
+                    <li><a href="/admin">Admin</a></li>
+                <% } %>
+            </ul>
+            <div class="auth-buttons">
+                <% if (user) { %>
+                    <div class="user-profile">
+                        <img src="https://cdn.discordapp.com/avatars/<%= user.id %>/<%= user.avatar %>.png" alt="Avatar">
+                        <span><%= user.username %></span>
+                        <a href="/logout" class="logout-btn">Logout</a>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <div class="history-container">
+            <h1>Your Moonlit Memories</h1>
+            
+            <% if (orders.length === 0) { %>
+                <div class="empty-history">
+                    <div class="empty-icon">🌙</div>
+                    <h2>No orders yet</h2>
+                    <p>Your first magical purchase awaits...</p>
+                    <a href="/shop" class="btn primary">Start Your Journey</a>
+                </div>
+            <% } else { %>
+                <div class="orders-grid">
+                    <% orders.forEach(order => { %>
+                        <div class="order-card">
+                            <div class="order-header">
+                                <span class="order-id">Order #<%= order.id %></span>
+                                <span class="order-date"><%= new Date(order.createdAt).toLocaleDateString() %></span>
+                            </div>
+                            <div class="order-body">
+                                <h3><%= order.productName %></h3>
+                                <p class="order-price">$<%= order.price %></p>
+                                <div class="order-status status-<%= order.status %>">
+                                    <%= order.status %>
+                                </div>
+                                <% if (order.proof) { %>
+                                    <div class="order-proof">
+                                        <span>Proof: <%= order.proof %></span>
+                                    </div>
+                                <% } %>
+                            </div>
+                        </div>
+                    <% }) %>
+                </div>
+            <% } %>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <p>Dev Rick • Moonlit Promise</p>
+            <p>✨ Where every purchase is a promise under the stars ✨</p>
+        </div>
+    </footer>
+</body>
+</html>
