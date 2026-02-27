@@ -11,26 +11,26 @@ module.exports = {
     
     // Channel IDs
     LOGIN_LOG_CHANNEL: process.env.LOGIN_LOG_CHANNEL,
+    ORDER_LOG_CHANNEL: process.env.ORDER_LOG_CHANNEL,
     PAYMENT_LOG_CHANNEL: process.env.PAYMENT_LOG_CHANNEL,
-    APPROVED_LOG_CHANNEL: process.env.APPROVED_LOG_CHANNEL,
+    DELIVERY_LOG_CHANNEL: process.env.DELIVERY_LOG_CHANNEL,
+    ADMIN_LOG_CHANNEL: process.env.ADMIN_LOG_CHANNEL,
     
     // Auto Role ID
     AUTO_ROLE_ID: process.env.AUTO_ROLE_ID,
     
-    // Admin Discord IDs (MULTIPLE ADMINS)
+    // Admin Discord IDs
     ADMIN_IDS: process.env.ADMIN_IDS ? process.env.ADMIN_IDS.split(',') : [],
     
-    // Session Secret
-    SESSION_SECRET: process.env.SESSION_SECRET || 'moonlit-promise-secret-key',
+    // Session
+    SESSION_SECRET: process.env.SESSION_SECRET || 'moonlit-secret',
     
-    // Server URL
+    // Server
     BASE_URL: process.env.BASE_URL || 'http://localhost:3000',
     
-    // Twilio SMS
-    TWILIO_ACCOUNT_SID: process.env.TWILIO_ACCOUNT_SID,
-    TWILIO_AUTH_TOKEN: process.env.TWILIO_AUTH_TOKEN,
-    TWILIO_PHONE_NUMBER: process.env.TWILIO_PHONE_NUMBER,
-    
     // Currency
-    CURRENCY: process.env.CURRENCY || '₹'
+    CURRENCY: process.env.CURRENCY || '₹',
+    
+    // Logging
+    LOG_LEVEL: process.env.LOG_LEVEL || 'info'
 };
