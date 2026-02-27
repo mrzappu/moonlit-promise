@@ -1,7 +1,7 @@
 {
   "name": "moonlit-promise",
   "version": "6.0.0",
-  "description": "Premium E-Commerce with Discord Integration",
+  "description": "Premium E-Commerce with Discord Integration - DM3 Style",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
