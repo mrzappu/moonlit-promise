@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Moonlit Promise</title>
+    <link rel="stylesheet" href="/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="magical-particles"></div>
+    
+    <nav class="navbar">
+        <!-- Same navbar structure -->
+        <div class="nav-container">
+            <div class="logo">
+                <h1>Moonlit<span>Promise</span></h1>
+                <div class="moon-glow"></div>
+            </div>
+            <ul class="nav-links">
+                <li><a href="/">Home</a></li>
+                <li><a href="/shop">Shop</a></li>
+                <li><a href="/cart">Cart</a></li>
+                <li><a href="/history">History</a></li>
+                <li><a href="/about">About</a></li>
+                <li><a href="/terms">Terms</a></li>
+                <li><a href="/admin" class="active">Admin</a></li>
+            </ul>
+            <div class="auth-buttons">
+                <div class="user-profile">
+                    <img src="https://cdn.discordapp.com/avatars/<%= user.id %>/<%= user.avatar %>.png" alt="Avatar">
+                    <span><%= user.username %></span>
+                    <a href="/logout" class="logout-btn">Logout</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <div class="admin-container">
+            <h1>Admin Dashboard</h1>
+            
+            <div class="admin-stats">
+                <div class="stat-card">
+                    <h3>Total Users</h3>
+                    <p><%= users.length %></p>
+                </div>
+                <div class="stat-card">
+                    <h3>Pending Orders</h3>
+                    <p><%= orders.filter(o => o.status === 'pending').length %></p>
+                </div>
+                <div class="stat-card">
+                    <h3>Approved Orders</h3>
+                    <p><%= orders.filter(o => o.status === 'approved').length %></p>
+                </div>
+            </div>
+
+            <div class="admin-section">
+                <h2>Recent Users</h2>
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Username</th>
+                            <th>Joined</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% users.slice(0, 5).forEach(user => { %>
+                            <tr>
+                                <td><%= user.id %></td>
+                                <td><%= user.username %></td>
+                                <td><%= new Date(user.createdAt).toLocaleDateString() %></td>
+                            </tr>
+                        <% }) %>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="admin-section">
+                <h2>Pending Orders</h2>
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>User</th>
+                            <th>Product</th>
+                            <th>Price</th>
+                            <th>Proof</th>
+                            <th>Address</th>
+                            <th>Phone</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% orders.filter(o => o.status === 'pending').forEach(order => { %>
+                            <tr>
+                                <td>#<%= order.id %></td>
+                                <td><%= order.username %></td>
+                                <td><%= order.productName %></td>
+                                <td>$<%= order.price %></td>
+                                <td><a href="/uploads/<%= order.proof %>" target="_blank">View</a></td>
+                                <td><%= order.address %></td>
+                                <td><%= order.phone %></td>
+                                <td>
+                                    <form action="/admin/order/approve/<%= order.id %>" method="POST" style="display: inline;">
+                                        <button type="submit" class="btn approve">Approve</button>
+                                    </form>
+                                    <form action="/admin/order/reject/<%= order.id %>" method="POST" style="display: inline;">
+                                        <button type="submit" class="btn reject">Reject</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        <% }) %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <p>Dev Rick • Moonlit Promise</p>
+            <p>✨ Where every purchase is a promise under the stars ✨</p>
+        </div>
+    </footer>
+</body>
+</html>
