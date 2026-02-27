@@ -15,9 +15,44 @@ const DiscordLogger = require('./bot');
 const app = express();
 const db = new Database('Imposter.db');
 
-// Create directories
+// ==================== DIRECTORY CREATION ====================
 const uploadDir = path.join(__dirname, 'public', 'uploads');
-if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
+if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
+    console.log('✅ Uploads directory created');
+}
+
+// ==================== FILE UPLOAD CONFIGURATION ====================
+// Configure multer for file uploads - THIS WAS MISSING!
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, uploadDir);
+    },
+    filename: (req, file, cb) => {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        cb(null, uniqueSuffix + path.extname(file.originalname));
+    }
+});
+
+const fileFilter = (req, file, cb) => {
+    const allowedTypes = /jpeg|jpg|png/;
+    const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+    const mimetype = allowedTypes.test(file.mimetype);
+    
+    if (mimetype && extname) {
+        return cb(null, true);
+    } else {
+        cb(new Error('Only .png, .jpg and .jpeg format allowed!'));
+    }
+};
+
+const upload = multer({ 
+    storage: storage,
+    fileFilter: fileFilter,
+    limits: { fileSize: 5 * 1024 * 1024 } // 5MB limit
+});
+
+console.log('✅ Multer file upload configured');
 
 // ==================== DATABASE SETUP ====================
 
@@ -179,13 +214,14 @@ app.use(express.static('public'));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
+// Session configuration
 app.use(session({
-    secret: config.SESSION_SECRET,
+    secret: config.SESSION_SECRET || 'moonlit-secret-key',
     resave: false,
     saveUninitialized: false,
     cookie: { 
-        secure: false, 
-        maxAge: 7 * 24 * 60 * 60 * 1000,
+        secure: false, // Set to true if using HTTPS
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
         httpOnly: true
     }
 }));
@@ -212,7 +248,7 @@ const isAuthenticated = (req, res, next) => {
 };
 
 const isAdmin = (req, res, next) => {
-    if (req.session.user && config.ADMIN_IDS.includes(req.session.user.id)) next();
+    if (req.session.user && config.ADMIN_IDS && config.ADMIN_IDS.includes(req.session.user.id)) next();
     else res.status(403).send('Access denied');
 };
 
@@ -264,7 +300,9 @@ app.get('/auth/discord/callback', async (req, res) => {
             .run(userData.id, userData.username, req.ip, req.get('User-Agent') || 'Unknown');
         
         // Send Discord login log
-        await DiscordLogger.sendLoginLog(userData, req.ip);
+        if (DiscordLogger.sendLoginLog) {
+            await DiscordLogger.sendLoginLog(userData, req.ip);
+        }
         
         Logger.login(userData.id, userData.username, req.ip);
         
@@ -285,13 +323,13 @@ app.get('/logout', (req, res) => {
 
 app.get('/', (req, res) => {
     const products = db.prepare('SELECT * FROM products WHERE isPublic = 1 ORDER BY id DESC LIMIT 8').all();
-    const isAdmin = req.session.user && config.ADMIN_IDS.includes(req.session.user.id);
+    const isAdmin = req.session.user && config.ADMIN_IDS && config.ADMIN_IDS.includes(req.session.user.id);
     
     res.render('index', { 
         user: req.session.user, 
         products,
         isAdmin,
-        currency: config.CURRENCY
+        currency: config.CURRENCY || '₹'
     });
 });
 
@@ -309,7 +347,7 @@ app.get('/shop', (req, res) => {
     
     const products = db.prepare(query).all(params);
     const categories = db.prepare('SELECT DISTINCT category FROM products WHERE isPublic = 1').all();
-    const isAdmin = req.session.user && config.ADMIN_IDS.includes(req.session.user.id);
+    const isAdmin = req.session.user && config.ADMIN_IDS && config.ADMIN_IDS.includes(req.session.user.id);
     
     res.render('shop', { 
         user: req.session.user, 
@@ -317,7 +355,7 @@ app.get('/shop', (req, res) => {
         categories,
         selectedCategory: category || 'all',
         isAdmin,
-        currency: config.CURRENCY
+        currency: config.CURRENCY || '₹'
     });
 });
 
@@ -325,22 +363,22 @@ app.get('/product/:id', (req, res) => {
     const product = db.prepare('SELECT * FROM products WHERE id = ? AND isPublic = 1').get(req.params.id);
     if (!product) return res.redirect('/shop');
     
-    const isAdmin = req.session.user && config.ADMIN_IDS.includes(req.session.user.id);
+    const isAdmin = req.session.user && config.ADMIN_IDS && config.ADMIN_IDS.includes(req.session.user.id);
     res.render('product', { 
         user: req.session.user, 
         product,
         isAdmin,
-        currency: config.CURRENCY
+        currency: config.CURRENCY || '₹'
     });
 });
 
 app.get('/about', (req, res) => {
-    const isAdmin = req.session.user && config.ADMIN_IDS.includes(req.session.user.id);
+    const isAdmin = req.session.user && config.ADMIN_IDS && config.ADMIN_IDS.includes(req.session.user.id);
     res.render('about', { user: req.session.user, isAdmin });
 });
 
 app.get('/terms', (req, res) => {
-    const isAdmin = req.session.user && config.ADMIN_IDS.includes(req.session.user.id);
+    const isAdmin = req.session.user && config.ADMIN_IDS && config.ADMIN_IDS.includes(req.session.user.id);
     res.render('terms', { user: req.session.user, isAdmin });
 });
 
@@ -354,14 +392,14 @@ app.get('/cart', isAuthenticated, (req, res) => {
     `).all(req.session.user.id);
     
     const total = cartItems.reduce((sum, item) => sum + (item.price * (item.quantity || 1)), 0);
-    const isAdmin = config.ADMIN_IDS.includes(req.session.user.id);
+    const isAdmin = config.ADMIN_IDS && config.ADMIN_IDS.includes(req.session.user.id);
     
     res.render('cart', { 
         user: req.session.user, 
         cartItems, 
         total,
         isAdmin,
-        currency: config.CURRENCY
+        currency: config.CURRENCY || '₹'
     });
 });
 
@@ -451,7 +489,7 @@ app.get('/checkout', isAuthenticated, (req, res) => {
     
     const total = cartItems.reduce((sum, item) => sum + (item.price * (item.quantity || 1)), 0);
     const userInfo = db.prepare('SELECT * FROM users WHERE id = ?').get(req.session.user.id);
-    const isAdmin = config.ADMIN_IDS.includes(req.session.user.id);
+    const isAdmin = config.ADMIN_IDS && config.ADMIN_IDS.includes(req.session.user.id);
     
     res.render('checkout', { 
         user: req.session.user, 
@@ -459,7 +497,7 @@ app.get('/checkout', isAuthenticated, (req, res) => {
         total,
         userInfo,
         isAdmin,
-        currency: config.CURRENCY
+        currency: config.CURRENCY || '₹'
     });
 });
 
@@ -520,8 +558,12 @@ app.post('/checkout/place-order', isAuthenticated, async (req, res) => {
     const order = db.prepare('SELECT * FROM orders WHERE orderNumber = ?').get(orderNumber);
     
     // Send Discord logs
-    await DiscordLogger.sendOrderLog(order, user, cartItems);
-    await DiscordLogger.sendAddressConfirmationLog(order, user);
+    if (DiscordLogger.sendOrderLog) {
+        await DiscordLogger.sendOrderLog(order, user, cartItems);
+    }
+    if (DiscordLogger.sendAddressConfirmationLog) {
+        await DiscordLogger.sendAddressConfirmationLog(order, user);
+    }
     
     // Log payment initiation
     db.prepare(`
@@ -529,10 +571,12 @@ app.post('/checkout/place-order', isAuthenticated, async (req, res) => {
         VALUES (?, ?, ?, ?)
     `).run(orderNumber, total, paymentMethod || 'cod', 'pending');
     
-    await DiscordLogger.sendPaymentLog(order, user, { 
-        status: 'pending',
-        method: paymentMethod || 'cod'
-    });
+    if (DiscordLogger.sendPaymentLog) {
+        await DiscordLogger.sendPaymentLog(order, user, { 
+            status: 'pending',
+            method: paymentMethod || 'cod'
+        });
+    }
     
     Logger.orderCreated(orderNumber, userId, total, cartItems);
     
@@ -546,14 +590,14 @@ app.get('/order-confirmation/:orderNumber', isAuthenticated, (req, res) => {
     if (!order) return res.redirect('/history');
     
     const items = JSON.parse(order.items);
-    const isAdmin = config.ADMIN_IDS.includes(req.session.user.id);
+    const isAdmin = config.ADMIN_IDS && config.ADMIN_IDS.includes(req.session.user.id);
     
     res.render('order-confirmation', { 
         user: req.session.user, 
         order,
         items,
         isAdmin,
-        currency: config.CURRENCY
+        currency: config.CURRENCY || '₹'
     });
 });
 
@@ -572,13 +616,13 @@ app.get('/history', isAuthenticated, (req, res) => {
         items: JSON.parse(order.items || '[]')
     }));
     
-    const isAdmin = config.ADMIN_IDS.includes(req.session.user.id);
+    const isAdmin = config.ADMIN_IDS && config.ADMIN_IDS.includes(req.session.user.id);
     
     res.render('history', { 
         user: req.session.user, 
         orders: ordersWithItems,
         isAdmin,
-        currency: config.CURRENCY
+        currency: config.CURRENCY || '₹'
     });
 });
 
@@ -602,6 +646,7 @@ app.get('/track/:orderNumber', (req, res) => {
     `).all(orderNumber);
     
     const user = order.userId ? db.prepare('SELECT * FROM users WHERE id = ?').get(order.userId) : null;
+    const isAdmin = req.session.user && config.ADMIN_IDS && config.ADMIN_IDS.includes(req.session.user.id);
     
     res.render('order-tracking', { 
         user: req.session.user,
@@ -609,7 +654,8 @@ app.get('/track/:orderNumber', (req, res) => {
         items,
         statusHistory,
         deliveryLogs,
-        currency: config.CURRENCY
+        isAdmin,
+        currency: config.CURRENCY || '₹'
     });
 });
 
@@ -636,10 +682,10 @@ app.get('/admin', isAdmin, (req, res) => {
     
     // Get recent logs
     const recentLogs = {
-        login: Logger.getRecentLogs('login', 20),
-        orders: Logger.getRecentLogs('orders', 20),
-        payments: Logger.getRecentLogs('payments', 20),
-        deliveries: Logger.getRecentLogs('deliveries', 20)
+        login: Logger.getRecentLogs ? Logger.getRecentLogs('login', 20) : [],
+        orders: Logger.getRecentLogs ? Logger.getRecentLogs('orders', 20) : [],
+        payments: Logger.getRecentLogs ? Logger.getRecentLogs('payments', 20) : [],
+        deliveries: Logger.getRecentLogs ? Logger.getRecentLogs('deliveries', 20) : []
     };
     
     res.render('admin', { 
@@ -650,7 +696,7 @@ app.get('/admin', isAdmin, (req, res) => {
         stats,
         recentLogs,
         isAdmin: true,
-        currency: config.CURRENCY
+        currency: config.CURRENCY || '₹'
     });
 });
 
@@ -680,7 +726,7 @@ app.post('/admin/order/update/:orderId', isAdmin, async (req, res) => {
     // Log to Discord
     const user = db.prepare('SELECT * FROM users WHERE id = ?').get(order.userId);
     
-    if (orderStatus === 'shipped' || orderStatus === 'out_for_delivery' || orderStatus === 'delivered') {
+    if (DiscordLogger.sendDeliveryLog && (orderStatus === 'shipped' || orderStatus === 'out_for_delivery' || orderStatus === 'delivered')) {
         await DiscordLogger.sendDeliveryLog(order, user, {
             status: orderStatus,
             trackingId,
@@ -696,12 +742,14 @@ app.post('/admin/order/update/:orderId', isAdmin, async (req, res) => {
     `).run(req.session.user.id, req.session.user.username, 'Update Order', 
         `Order ${order.orderNumber}: ${oldStatus} → ${orderStatus}`, order.userId);
     
-    await DiscordLogger.sendAdminLog(
-        req.session.user, 
-        'Update Order', 
-        `Order ${order.orderNumber}: ${oldStatus} → ${orderStatus}`,
-        user
-    );
+    if (DiscordLogger.sendAdminLog) {
+        await DiscordLogger.sendAdminLog(
+            req.session.user, 
+            'Update Order', 
+            `Order ${order.orderNumber}: ${oldStatus} → ${orderStatus}`,
+            user
+        );
+    }
     
     Logger.orderStatusChanged(order.orderNumber, oldStatus, orderStatus, req.session.user.id);
     
@@ -721,11 +769,13 @@ app.post('/admin/order/verify-payment/:orderId', isAdmin, async (req, res) => {
     
     const user = db.prepare('SELECT * FROM users WHERE id = ?').get(order.userId);
     
-    await DiscordLogger.sendPaymentLog(order, user, {
-        status: 'completed',
-        transactionId,
-        utrNumber
-    });
+    if (DiscordLogger.sendPaymentLog) {
+        await DiscordLogger.sendPaymentLog(order, user, {
+            status: 'completed',
+            transactionId,
+            utrNumber
+        });
+    }
     
     Logger.paymentCompleted(order.orderNumber, order.totalAmount, order.paymentMethod, transactionId || utrNumber, order.userId);
     
@@ -751,10 +801,12 @@ app.post('/admin/order/delivered/:orderId', isAdmin, async (req, res) => {
     
     const user = db.prepare('SELECT * FROM users WHERE id = ?').get(order.userId);
     
-    await DiscordLogger.sendDeliveryLog(order, user, {
-        status: 'delivered',
-        deliveredAt: new Date().toLocaleString('en-IN')
-    });
+    if (DiscordLogger.sendDeliveryLog) {
+        await DiscordLogger.sendDeliveryLog(order, user, {
+            status: 'delivered',
+            deliveredAt: new Date().toLocaleString('en-IN')
+        });
+    }
     
     // Give role if first purchase
     if (user.totalOrders === 1) {
@@ -766,13 +818,15 @@ app.post('/admin/order/delivered/:orderId', isAdmin, async (req, res) => {
     res.redirect('/admin');
 });
 
-// Product management
+// ==================== PRODUCT MANAGEMENT ====================
+// THESE ROUTES USE THE 'upload' VARIABLE - NOW DEFINED ABOVE
+
 app.get('/admin/product/new', isAdmin, (req, res) => {
     res.render('product-form', { 
         user: req.session.user, 
         product: null,
         isAdmin: true,
-        currency: config.CURRENCY
+        currency: config.CURRENCY || '₹'
     });
 });
 
@@ -782,45 +836,65 @@ app.get('/admin/product/edit/:id', isAdmin, (req, res) => {
         user: req.session.user, 
         product,
         isAdmin: true,
-        currency: config.CURRENCY
+        currency: config.CURRENCY || '₹'
     });
 });
 
+// THIS ROUTE WAS CAUSING THE ERROR - NOW FIXED
 app.post('/admin/product/create', isAdmin, upload.single('productImage'), (req, res) => {
-    const { name, price, description, category, stock } = req.body;
-    const imageFile = req.file;
-    
-    const imageName = imageFile ? imageFile.filename : null;
-    
-    db.prepare('INSERT INTO products (name, price, description, category, stock, image) VALUES (?, ?, ?, ?, ?, ?)')
-        .run(name, parseInt(price), description, category, parseInt(stock || 10), imageName);
-    
-    Logger.adminAction(req.session.user.id, req.session.user.username, 'Create Product', { name, price, category });
-    
-    res.redirect('/admin');
+    try {
+        const { name, price, description, category, stock } = req.body;
+        const imageFile = req.file;
+        
+        if (!name || !price || !description) {
+            return res.status(400).send('Required fields missing');
+        }
+        
+        const imageName = imageFile ? imageFile.filename : null;
+        
+        db.prepare('INSERT INTO products (name, price, description, category, stock, image) VALUES (?, ?, ?, ?, ?, ?)')
+            .run(name, parseInt(price), description, category, parseInt(stock || 10), imageName);
+        
+        Logger.adminAction(req.session.user.id, req.session.user.username, 'Create Product', { name, price, category });
+        
+        res.redirect('/admin');
+    } catch (error) {
+        Logger.error('Product creation error', error);
+        res.status(500).send('Error creating product');
+    }
 });
 
 app.post('/admin/product/update/:id', isAdmin, upload.single('productImage'), (req, res) => {
-    const { name, price, description, category, stock } = req.body;
-    const productId = req.params.id;
-    const imageFile = req.file;
-    
-    if (imageFile) {
-        db.prepare('UPDATE products SET name = ?, price = ?, description = ?, category = ?, stock = ?, image = ? WHERE id = ?')
-            .run(name, parseInt(price), description, category, parseInt(stock || 10), imageFile.filename, productId);
-    } else {
-        db.prepare('UPDATE products SET name = ?, price = ?, description = ?, category = ?, stock = ? WHERE id = ?')
-            .run(name, parseInt(price), description, category, parseInt(stock || 10), productId);
+    try {
+        const { name, price, description, category, stock } = req.body;
+        const productId = req.params.id;
+        const imageFile = req.file;
+        
+        if (imageFile) {
+            db.prepare('UPDATE products SET name = ?, price = ?, description = ?, category = ?, stock = ?, image = ? WHERE id = ?')
+                .run(name, parseInt(price), description, category, parseInt(stock || 10), imageFile.filename, productId);
+        } else {
+            db.prepare('UPDATE products SET name = ?, price = ?, description = ?, category = ?, stock = ? WHERE id = ?')
+                .run(name, parseInt(price), description, category, parseInt(stock || 10), productId);
+        }
+        
+        Logger.adminAction(req.session.user.id, req.session.user.username, 'Update Product', { productId, name });
+        
+        res.redirect('/admin');
+    } catch (error) {
+        Logger.error('Product update error', error);
+        res.status(500).send('Error updating product');
     }
-    
-    Logger.adminAction(req.session.user.id, req.session.user.username, 'Update Product', { productId, name });
-    
-    res.redirect('/admin');
 });
 
 app.post('/admin/product/delete/:id', isAdmin, (req, res) => {
-    db.prepare('DELETE FROM products WHERE id = ?').run(req.params.id);
-    res.redirect('/admin');
+    try {
+        db.prepare('DELETE FROM products WHERE id = ?').run(req.params.id);
+        res.redirect('/admin');
+    } catch (error) {
+        Logger.error('Product delete error', error);
+        res.status(500).send('Error deleting product');
+    }
 });
 
 // ==================== LOGS API (Admin only) ====================
@@ -829,7 +903,7 @@ app.get('/admin/logs/:type', isAdmin, (req, res) => {
     const { type } = req.params;
     const lines = parseInt(req.query.lines) || 100;
     
-    const logs = Logger.getRecentLogs(type, lines);
+    const logs = Logger.getRecentLogs ? Logger.getRecentLogs(type, lines) : [];
     res.json({ success: true, logs });
 });
 
@@ -837,22 +911,37 @@ app.get('/admin/logs/:type', isAdmin, (req, res) => {
 
 // Cleanup old OTPs every hour
 cron.schedule('0 * * * *', () => {
-    const result = db.prepare('DELETE FROM otp_requests WHERE expiresAt < datetime("now") OR isUsed = 1').run();
-    if (result.changes > 0) {
-        Logger.info(`Cleaned up ${result.changes} expired OTPs`);
+    try {
+        const result = db.prepare('DELETE FROM otp_requests WHERE expiresAt < datetime("now") OR isUsed = 1').run();
+        if (result.changes > 0) {
+            Logger.info(`Cleaned up ${result.changes} expired OTPs`);
+        }
+    } catch (error) {
+        Logger.error('OTP cleanup error', error);
     }
 });
 
 // Log server stats daily
 cron.schedule('0 0 * * *', () => {
-    const stats = {
-        users: db.prepare('SELECT COUNT(*) as count FROM users').get().count,
-        orders: db.prepare('SELECT COUNT(*) as count FROM orders').get().count,
-        revenue: db.prepare('SELECT SUM(totalAmount) as total FROM orders WHERE paymentStatus = "completed"').get().total || 0,
-        pendingOrders: db.prepare('SELECT COUNT(*) as count FROM orders WHERE orderStatus = "pending"').get().count
-    };
-    
-    Logger.info('Daily stats', stats);
+    try {
+        const stats = {
+            users: db.prepare('SELECT COUNT(*) as count FROM users').get().count,
+            orders: db.prepare('SELECT COUNT(*) as count FROM orders').get().count,
+            revenue: db.prepare('SELECT SUM(totalAmount) as total FROM orders WHERE paymentStatus = "completed"').get().total || 0,
+            pendingOrders: db.prepare('SELECT COUNT(*) as count FROM orders WHERE orderStatus = "pending"').get().count
+        };
+        
+        Logger.info('Daily stats', stats);
+    } catch (error) {
+        Logger.error('Stats logging error', error);
+    }
+});
+
+// ==================== ERROR HANDLER ====================
+
+app.use((err, req, res, next) => {
+    Logger.error('Unhandled error', err, { url: req.url, method: req.method });
+    res.status(500).send('Something went wrong!');
 });
 
 // ==================== START SERVER ====================
@@ -861,8 +950,9 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`✨ Moonlit Promise server running on port ${PORT} ✨`);
     console.log(`📝 Full logging system enabled`);
-    console.log(`📁 Logs directory: ${path.join(__dirname, 'logs')}`);
-    console.log(`👑 Admins: ${config.ADMIN_IDS.join(', ')}`);
+    console.log(`📁 Uploads directory: ${uploadDir}`);
+    console.log(`👑 Admins: ${config.ADMIN_IDS ? config.ADMIN_IDS.join(', ') : 'None set'}`);
+    console.log(`✅ Multer file upload configured and ready`);
     
     Logger.info('Server started', { 
         port: PORT, 
@@ -871,16 +961,12 @@ app.listen(PORT, () => {
     });
 });
 
-// Error handler
-app.use((err, req, res, next) => {
-    Logger.error('Unhandled error', err, { url: req.url, method: req.method });
-    res.status(500).send('Something went wrong!');
-});
-
 process.on('uncaughtException', (err) => {
+    console.error('Uncaught Exception:', err);
     Logger.error('Uncaught Exception', err);
 });
 
 process.on('unhandledRejection', (reason, promise) => {
+    console.error('Unhandled Rejection:', reason);
     Logger.error('Unhandled Rejection', reason, { promise });
 });
