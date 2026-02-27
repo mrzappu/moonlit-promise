@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order History - Moonlit Promise</title>
+    <link rel="stylesheet" href="/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .history-container {
+            max-width: 1200px;
+            margin: 4rem auto;
+            padding: 0 2rem;
+        }
+
+        .history-container h1 {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 3rem;
+            background: linear-gradient(135deg, #fff, #ffd7ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .order-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(155, 89, 182, 0.3);
+            overflow: hidden;
+            transition: transform 0.3s ease;
+        }
+
+        .order-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(155, 89, 182, 0.3);
+        }
+
+        .order-header {
+            background: rgba(155, 89, 182, 0.2);
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(155, 89, 182, 0.3);
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .order-number {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #f1c40f;
+        }
+
+        .order-date {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.95rem;
+        }
+
+        .order-status {
+            padding: 0.5rem 1.5rem;
+            border-radius: 30px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-pending {
+            background: rgba(241, 196, 15, 0.2);
+            color: #f1c40f;
+            border: 1px solid #f1c40f;
+        }
+
+        .status-processing {
+            background: rgba(52, 152, 219, 0.2);
+            color: #3498db;
+            border: 1px solid #3498db;
+        }
+
+        .status-shipped {
+            background: rgba(155, 89, 182, 0.2);
+            color: #9b59b6;
+            border: 1px solid #9b59b6;
+        }
+
+        .status-delivered {
+            background: rgba(46, 204, 113, 0.2);
+            color: #2ecc71;
+            border: 1px solid #2ecc71;
+        }
+
+        .status-cancelled {
+            background: rgba(231, 76, 60, 0.2);
+            color: #e74c3c;
+            border: 1px solid #e74c3c;
+        }
+
+        .order-body {
+            padding: 2rem;
+        }
+
+        .order-items {
+            margin-bottom: 1.5rem;
+        }
+
+        .order-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.8rem 0;
+            border-bottom: 1px dashed rgba(155, 89, 182, 0.2);
+        }
+
+        .order-item:last-child {
+            border-bottom: none;
+        }
+
+        .item-name {
+            flex: 2;
+        }
+
+        .item-quantity {
+            flex: 1;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .item-price {
+            flex: 1;
+            text-align: right;
+            color: #f1c40f;
+            font-weight: 600;
+        }
+
+        .order-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 2px solid #9b59b6;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .order-total {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #f1c40f;
+        }
+
+        .payment-method {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: rgba(155, 89, 182, 0.1);
+            border-radius: 30px;
+            font-size: 0.9rem;
+        }
+
+        .payment-method i {
+            color: #f1c40f;
+        }
+
+        .order-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn {
+            padding: 0.6rem 1.5rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.95rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #9b59b6, #8e44ad);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid #9b59b6;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(155, 89, 182, 0.3);
+        }
+
+        .empty-history {
+            text-align: center;
+            padding: 4rem;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            border: 1px solid rgba(155, 89, 182, 0.3);
+        }
+
+        .empty-icon {
+            font-size: 5rem;
+            margin-bottom: 1rem;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .empty-history h2 {
+            font-size: 2rem;
+            color: #f1c40f;
+            margin-bottom: 1rem;
+        }
+
+        .empty-history p {
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 2rem;
+        }
+
+        .shop-now-btn {
+            display: inline-block;
+            padding: 1rem 3rem;
+            background: linear-gradient(135deg, #9b59b6, #8e44ad);
+            color: white;
+            text-decoration: none;
+            border-radius: 10px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .shop-now-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(155, 89, 182, 0.4);
+        }
+
+        .filter-section {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 2rem;
+        }
+
+        .filter-select {
+            padding: 0.8rem 1.5rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid #9b59b6;
+            border-radius: 10px;
+            color: white;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+
+        .filter-select option {
+            background: #1a1a3a;
+        }
+
+        .address-summary {
+            background: rgba(255, 255, 255, 0.03);
+            padding: 1rem;
+            border-radius: 10px;
+            margin: 1rem 0;
+            font-size: 0.95rem;
+            color: rgba(255, 255, 255, 0.8);
+            border-left: 3px solid #9b59b6;
+        }
+
+        .address-summary i {
+            color: #f1c40f;
+            margin-right: 0.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .order-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .order-footer {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .order-actions {
+                width: 100%;
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="magical-particles"></div>
+    
+    <!-- Top Bar -->
+    <div class="top-bar">
+        <div class="container">
+            <i class="fas fa-truck"></i> FREE SHIPPING on all orders above ₹999 | All India Delivery
+        </div>
+    </div>
+    
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <img src="/moonlitpromise.png" alt="Moonlit Promise">
+            </div>
+            <ul class="nav-links">
+                <li><a href="/">Home</a></li>
+                <li><a href="/shop">Shop</a></li>
+                <li><a href="/cart">Cart</a></li>
+                <li><a href="/history" class="active">History</a></li>
+                <li><a href="/about">About</a></li>
+                <li><a href="/terms">Terms</a></li>
+                <% if (isAdmin) { %>
+                    <li><a href="/admin">Admin</a></li>
+                <% } %>
+            </ul>
+            <div class="auth-buttons">
+                <% if (user) { %>
+                    <div class="user-profile">
+                        <img src="https://cdn.discordapp.com/avatars/<%= user.id %>/<%= user.avatar %>.png" alt="Avatar">
+                        <span><%= user.username %></span>
+                        <a href="/logout" class="logout-btn">Logout</a>
+                    </div>
+                <% } else { %>
+                    <a href="/auth/discord" class="discord-btn">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 127.14 96.36">
+                            <path fill="#fff" d="M107.7,8.07A105.15,105.15,0,0,0,81.47,0a72.06,72.06,0,0,0-3.36,6.83A97.68,97.68,0,0,0,49,6.83,72.37,72.37,0,0,0,45.64,0,105.89,105.89,0,0,0,19.39,8.09C2.79,32.65-1.71,56.6.54,80.21h0A105.73,105.73,0,0,0,32.71,96.36,77.7,77.7,0,0,0,39.6,85.25a68.42,68.42,0,0,1-10.85-5.18c.91-.66,1.8-1.34,2.66-2a75.57,75.57,0,0,0,64.32,0c.87.71,1.76,1.39,2.66,2a68.68,68.68,0,0,1-10.87,5.19,77,77,0,0,0,6.89,11.1A105.25,105.25,0,0,0,126.6,80.22h0C129.24,53.84,122.09,29.11,107.7,8.07ZM42.45,65.69C36.18,65.69,31,60,31,53s5-12.74,11.43-12.74S54,46,53.89,53,48.84,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.25,60,73.25,53s5-12.74,11.44-12.74S96.23,46,96.12,53,91.08,65.69,84.69,65.69Z"/>
+                        </svg>
+                        Login
+                    </a>
+                <% } %>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <div class="history-container">
+            <h1><i class="fas fa-history"></i> Your Order History</h1>
+            
+            <% if (orders.length === 0) { %>
+                <!-- Empty State -->
+                <div class="empty-history">
+                    <div class="empty-icon">📦</div>
+                    <h2>No Orders Yet</h2>
+                    <p>Looks like you haven't placed any orders yet. Start shopping to see your order history!</p>
+                    <a href="/shop" class="shop-now-btn">Start Shopping</a>
+                </div>
+            <% } else { %>
+                <!-- Filter Section -->
+                <div class="filter-section">
+                    <select class="filter-select" onchange="filterOrders(this.value)">
+                        <option value="all">All Orders</option>
+                        <option value="pending">Pending</option>
+                        <option value="processing">Processing</option>
+                        <option value="shipped">Shipped</option>
+                        <option value="delivered">Delivered</option>
+                        <option value="cancelled">Cancelled</option>
+                    </select>
+                </div>
+
+                <!-- Orders List -->
+                <% orders.forEach(order => { %>
+                    <div class="order-card" data-status="<%= order.orderStatus %>">
+                        <div class="order-header">
+                            <div>
+                                <span class="order-number">#<%= order.orderNumber %></span>
+                                <span class="order-date"><i class="far fa-calendar-alt"></i> <%= new Date(order.createdAt).toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' }) %></span>
+                            </div>
+                            <span class="order-status status-<%= order.orderStatus %>">
+                                <%= order.orderStatus.toUpperCase() %>
+                            </span>
+                        </div>
+                        
+                        <div class="order-body">
+                            <!-- Order Items -->
+                            <div class="order-items">
+                                <% order.items.forEach(item => { %>
+                                    <div class="order-item">
+                                        <span class="item-name">
+                                            <%= item.name %>
+                                            <% if (item.quantity > 1) { %>
+                                                <span style="color: #f1c40f;">(x<%= item.quantity %>)</span>
+                                            <% } %>
+                                        </span>
+                                        <span class="item-quantity">Qty: <%= item.quantity %></span>
+                                        <span class="item-price"><%= currency %><%= (item.price * item.quantity).toLocaleString('en-IN') %></span>
+                                    </div>
+                                <% }) %>
+                            </div>
+
+                            <!-- Shipping Address -->
+                            <div class="address-summary">
+                                <i class="fas fa-map-marker-alt"></i>
+                                <strong><%= order.fullName %></strong> | 
+                                <%= order.address %>, <%= order.pincode %> | 
+                                <i class="fas fa-phone"></i> <%= order.phone %>
+                            </div>
+
+                            <!-- Order Footer -->
+                            <div class="order-footer">
+                                <div class="order-total">
+                                    Total: <%= currency %><%= (order.totalAmount + (order.totalAmount >= 999 ? 0 : 99)).toLocaleString('en-IN') %>
+                                </div>
+                                
+                                <div class="payment-method">
+                                    <i class="<%= order.paymentMethod === 'cod' ? 'fas fa-money-bill-wave' : 'fas fa-credit-card' %>"></i>
+                                    <%= order.paymentMethod === 'cod' ? 'Cash on Delivery' : 'Online Payment' %>
+                                    <% if (order.paymentStatus === 'completed') { %>
+                                        <span style="color: #2ecc71; margin-left: 0.5rem;">✓ Paid</span>
+                                    <% } %>
+                                </div>
+
+                                <div class="order-actions">
+                                    <a href="/track/<%= order.orderNumber %>" class="btn btn-primary">
+                                        <i class="fas fa-truck"></i> Track
+                                    </a>
+                                    <a href="/order-confirmation/<%= order.orderNumber %>" class="btn btn-secondary">
+                                        <i class="fas fa-receipt"></i> Details
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                <% }) %>
+            <% } %>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer" style="background: #0a0a0f; padding: 2rem 0; margin-top: 4rem; border-top: 1px solid rgba(155,89,182,0.3);">
+        <div class="container">
+            <div style="text-align: center; color: rgba(255,255,255,0.5);">
+                <p>© 2025 Moonlit Promise. Your order history at a glance.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Filter orders by status
+        function filterOrders(status) {
+            const orders = document.querySelectorAll('.order-card');
+            orders.forEach(order => {
+                if (status === 'all' || order.dataset.status === status) {
+                    order.style.display = 'block';
+                } else {
+                    order.style.display = 'none';
+                }
+            });
+        }
+
+        // Particle effect
+        document.addEventListener('DOMContentLoaded', () => {
+            const particles = document.querySelector('.magical-particles');
+            for (let i = 0; i < 20; i++) {
+                const particle = document.createElement('div');
+                particle.classList.add('particle');
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.top = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 5 + 's';
+                particle.style.width = (Math.random() * 4 + 1) + 'px';
+                particle.style.height = particle.style.width;
+                particles.appendChild(particle);
+            }
+        });
+    </script>
+</body>
+</html>
