@@ -5,16 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Order History - Moonlit Promise</title>
     <link rel="stylesheet" href="/style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <div class="magical-particles"></div>
     
     <nav class="navbar">
-        <!-- Same navbar structure -->
         <div class="nav-container">
             <div class="logo">
-                <h1>Moonlit<span>Promise</span></h1>
+                <img src="/moonlitpromise.png" alt="Moonlit Promise" class="logo-image">
                 <div class="moon-glow"></div>
             </div>
             <ul class="nav-links">
@@ -24,7 +23,7 @@
                 <li><a href="/history" class="active">History</a></li>
                 <li><a href="/about">About</a></li>
                 <li><a href="/terms">Terms</a></li>
-                <% if (user && user.id === 'your_admin_id_here') { %>
+                <% if (isAdmin) { %>
                     <li><a href="/admin">Admin</a></li>
                 <% } %>
             </ul>
@@ -41,35 +40,54 @@
     </nav>
 
     <main>
-        <div class="history-container">
-            <h1>Your Moonlit Memories</h1>
+        <div class="history-container" style="max-width: 1200px; margin: 4rem auto; padding: 0 2rem;">
+            <h1 style="text-align: center; margin-bottom: 3rem;">Your Moonlit Memories</h1>
             
             <% if (orders.length === 0) { %>
-                <div class="empty-history">
-                    <div class="empty-icon">🌙</div>
+                <div style="text-align: center; padding: 4rem;">
+                    <div style="font-size: 5rem; margin-bottom: 1rem;">🌙</div>
                     <h2>No orders yet</h2>
-                    <p>Your first magical purchase awaits...</p>
+                    <p style="color: rgba(255,255,255,0.7); margin-bottom: 2rem;">Your first magical purchase awaits...</p>
                     <a href="/shop" class="btn primary">Start Your Journey</a>
                 </div>
             <% } else { %>
-                <div class="orders-grid">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 2rem;">
                     <% orders.forEach(order => { %>
-                        <div class="order-card">
-                            <div class="order-header">
-                                <span class="order-id">Order #<%= order.id %></span>
-                                <span class="order-date"><%= new Date(order.createdAt).toLocaleDateString() %></span>
+                        <div style="background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); border-radius: 20px; overflow: hidden; border: 1px solid rgba(155,89,182,0.3); transition: transform 0.3s ease;">
+                            <div style="background: rgba(155,89,182,0.2); padding: 1rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(155,89,182,0.3);">
+                                <span style="font-weight: 700; color: #f1c40f;">Order #<%= order.id %></span>
+                                <span style="color: rgba(255,255,255,0.6); font-size: 0.9rem;"><%= new Date(order.createdAt).toLocaleDateString() %></span>
                             </div>
-                            <div class="order-body">
-                                <h3><%= order.productName %></h3>
-                                <p class="order-price">$<%= order.price %></p>
-                                <div class="order-status status-<%= order.status %>">
-                                    <%= order.status %>
+                            <div style="padding: 1.5rem;">
+                                <h3 style="margin-bottom: 0.5rem;"><%= order.productName %></h3>
+                                <p style="font-size: 1.3rem; color: #f1c40f; font-weight: 700; margin-bottom: 1rem;"><%= currency %><%= order.price.toLocaleString('en-IN') %></p>
+                                
+                                <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap;">
+                                    <span style="padding: 0.3rem 1rem; border-radius: 20px; font-size: 0.9rem; font-weight: 600; 
+                                        <% if (order.status === 'pending') { %>background: rgba(241,196,15,0.2); color: #f1c40f; border: 1px solid #f1c40f;<% } %>
+                                        <% if (order.status === 'approved') { %>background: rgba(46,204,113,0.2); color: #2ecc71; border: 1px solid #2ecc71;<% } %>
+                                        <% if (order.status === 'rejected') { %>background: rgba(231,76,60,0.2); color: #e74c3c; border: 1px solid #e74c3c;<% } %>">
+                                        <%= order.status.charAt(0).toUpperCase() + order.status.slice(1) %>
+                                    </span>
+                                    
+                                    <span style="padding: 0.3rem 1rem; border-radius: 20px; font-size: 0.9rem; font-weight: 600; 
+                                        <% if (order.paymentMethod === 'online') { %>background: rgba(155,89,182,0.2); color: #9b59b6; border: 1px solid #9b59b6;<% } %>
+                                        <% if (order.paymentMethod === 'cod') { %>background: rgba(241,196,15,0.2); color: #f1c40f; border: 1px solid #f1c40f;<% } %>">
+                                        <%= order.paymentMethod === 'cod' ? 'Cash on Delivery' : 'Online Payment' %>
+                                    </span>
                                 </div>
+                                
                                 <% if (order.proof) { %>
-                                    <div class="order-proof">
+                                    <div style="font-size: 0.9rem; color: rgba(255,255,255,0.6);">
                                         <span>Proof: <%= order.proof %></span>
                                     </div>
                                 <% } %>
+                                
+                                <div style="margin-top: 1rem; font-size: 0.9rem; color: rgba(255,255,255,0.5);">
+                                    <div>Deliver to: <%= order.fullName %></div>
+                                    <div><%= order.address %>, <%= order.pincode %></div>
+                                    <div>Phone: <%= order.phone %></div>
+                                </div>
                             </div>
                         </div>
                     <% }) %>
