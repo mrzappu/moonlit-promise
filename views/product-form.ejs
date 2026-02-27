@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= product ? 'Edit' : 'Add' %> Product - Moonlit Promise</title>
+    <link rel="stylesheet" href="/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="magical-particles"></div>
+    
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <img src="/moonlitpromise.png" alt="Moonlit Promise">
+            </div>
+            <ul class="nav-links">
+                <li><a href="/">Home</a></li>
+                <li><a href="/shop">Shop</a></li>
+                <li><a href="/cart">Cart</a></li>
+                <li><a href="/history">History</a></li>
+                <li><a href="/about">About</a></li>
+                <li><a href="/terms">Terms</a></li>
+                <li><a href="/admin">Admin</a></li>
+            </ul>
+            <div class="auth-buttons">
+                <div class="user-profile">
+                    <img src="https://cdn.discordapp.com/avatars/<%= user.id %>/<%= user.avatar %>.png" alt="Avatar">
+                    <span><%= user.username %></span>
+                    <a href="/logout" class="logout-btn">Logout</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main style="max-width: 800px; margin: 4rem auto; padding: 2rem; background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); border-radius: 20px; border: 1px solid rgba(155,89,182,0.3);">
+        <h1 style="text-align: center; margin-bottom: 2rem;"><%= product ? 'Edit Product' : 'Add New Product' %></h1>
+        
+        <form action="<%= product ? '/admin/product/update/' + product.id : '/admin/product/create' %>" method="POST" enctype="multipart/form-data">
+            <div style="margin-bottom: 1rem;">
+                <label style="display: block; margin-bottom: 0.5rem; color: #f1c40f;">Product Name *</label>
+                <input type="text" name="name" value="<%= product ? product.name : '' %>" required style="width: 100%; padding: 0.8rem; background: rgba(255,255,255,0.1); border: 1px solid #9b59b6; border-radius: 10px; color: white;">
+            </div>
+            
+            <div style="margin-bottom: 1rem;">
+                <label style="display: block; margin-bottom: 0.5rem; color: #f1c40f;">Price (<%= currency %>) *</label>
+                <input type="number" name="price" value="<%= product ? product.price : '' %>" required min="1" style="width: 100%; padding: 0.8rem; background: rgba(255,255,255,0.1); border: 1px solid #9b59b6; border-radius: 10px; color: white;">
+            </div>
+            
+            <div style="margin-bottom: 1rem;">
+                <label style="display: block; margin-bottom: 0.5rem; color: #f1c40f;">Description *</label>
+                <textarea name="description" required rows="4" style="width: 100%; padding: 0.8rem; background: rgba(255,255,255,0.1); border: 1px solid #9b59b6; border-radius: 10px; color: white;"><%= product ? product.description : '' %></textarea>
+            </div>
+            
+            <div style="margin-bottom: 1rem;">
+                <label style="display: block; margin-bottom: 0.5rem; color: #f1c40f;">Category</label>
+                <select name="category" style="width: 100%; padding: 0.8rem; background: rgba(255,255,255,0.1); border: 1px solid #9b59b6; border-radius: 10px; color: white;">
+                    <% categories.forEach(cat => { %>
+                        <option value="<%= cat.name %>" <%= product && product.category === cat.name ? 'selected' : '' %>><%= cat.name %></option>
+                    <% }) %>
+                </select>
+            </div>
+            
+            <div style="margin-bottom: 1rem;">
+                <label style="display: block; margin-bottom: 0.5rem; color: #f1c40f;">Stock Quantity</label>
+                <input type="number" name="stock" value="<%= product ? product.stock : 10 %>" min="0" style="width: 100%; padding: 0.8rem; background: rgba(255,255,255,0.1); border: 1px solid #9b59b6; border-radius: 10px; color: white;">
+            </div>
+            
+            <div style="margin-bottom: 2rem;">
+                <label style="display: block; margin-bottom: 0.5rem; color: #f1c40f;">Product Image</label>
+                <input type="file" name="productImage" accept=".png,.jpg,.jpeg,.webp" <%= !product ? 'required' : '' %> style="width: 100%; padding: 0.8rem; background: rgba(255,255,255,0.1); border: 1px solid #9b59b6; border-radius: 10px; color: white;">
+                <% if (product && product.image) { %>
+                    <p style="margin-top: 0.5rem;">Current: <img src="/uploads/<%= product.image %>" style="height: 50px; border-radius: 5px;"></p>
+                <% } %>
+            </div>
+            
+            <div style="display: flex; gap: 1rem;">
+                <button type="submit" class="btn" style="flex: 1; background: linear-gradient(135deg, #9b59b6, #8e44ad); color: white; padding: 1rem; border: none; border-radius: 10px; cursor: pointer; font-weight: 600;">Save Product</button>
+                <a href="/admin" class="btn" style="flex: 1; background: rgba(255,255,255,0.1); color: white; padding: 1rem; border: 1px solid #9b59b6; border-radius: 10px; text-align: center; text-decoration: none;">Cancel</a>
+            </div>
+        </form>
+    </main>
+</body>
+</html>
