@@ -47,24 +47,54 @@
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 127.14 96.36">
                             <path fill="#fff" d="M107.7,8.07A105.15,105.15,0,0,0,81.47,0a72.06,72.06,0,0,0-3.36,6.83A97.68,97.68,0,0,0,49,6.83,72.37,72.37,0,0,0,45.64,0,105.89,105.89,0,0,0,19.39,8.09C2.79,32.65-1.71,56.6.54,80.21h0A105.73,105.73,0,0,0,32.71,96.36,77.7,77.7,0,0,0,39.6,85.25a68.42,68.42,0,0,1-10.85-5.18c.91-.66,1.8-1.34,2.66-2a75.57,75.57,0,0,0,64.32,0c.87.71,1.76,1.39,2.66,2a68.68,68.68,0,0,1-10.87,5.19,77,77,0,0,0,6.89,11.1A105.25,105.25,0,0,0,126.6,80.22h0C129.24,53.84,122.09,29.11,107.7,8.07ZM42.45,65.69C36.18,65.69,31,60,31,53s5-12.74,11.43-12.74S54,46,53.89,53,48.84,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.25,60,73.25,53s5-12.74,11.44-12.74S96.23,46,96.12,53,91.08,65.69,84.69,65.69Z"/>
                         </svg>
-                        Login with Discord
+                        Login
                     </a>
                 <% } %>
             </div>
         </div>
     </nav>
 
-    <!-- Revolution Slider (DM3 Style) -->
-    <div class="rev-slider-container">
-        <!-- Slide 1 -->
-        <div class="rev-slide" style="background-image: url('/slider/slide1.jpg');">
-            <div class="slide-overlay"></div>
-            <div class="slide-content">
-                <h1 class="slide-title">MOONLIT<br>PROMISE</h1>
-                <p class="slide-subtitle">Where dreams meet performance under the silver glow</p>
-                <a href="/shop" class="slide-btn">Shop Now</a>
+    <!-- Auto-Rotating Slider (DM3 Style) -->
+    <div class="slider-container">
+        <div class="slider">
+            <div class="slide active" style="background-image: url('/slider/slide1.jpg');">
+                <div class="slide-overlay"></div>
+                <div class="slide-content">
+                    <h2>Feel the thrill...</h2>
+                    <h1>INDIA</h1>
+                    <a href="/shop" class="slide-btn">Shop Now</a>
+                </div>
+            </div>
+            <div class="slide" style="background-image: url('/slider/slide2.jpg');">
+                <div class="slide-overlay"></div>
+                <div class="slide-content">
+                    <h2>Premium Quality</h2>
+                    <h1>SPORTS WEAR</h1>
+                    <a href="/shop" class="slide-btn">Shop Now</a>
+                </div>
+            </div>
+            <div class="slide" style="background-image: url('/slider/slide3.jpg');">
+                <div class="slide-overlay"></div>
+                <div class="slide-content">
+                    <h2>Magical</h2>
+                    <h1>FANTASY DRESSES</h1>
+                    <a href="/shop" class="slide-btn">Shop Now</a>
+                </div>
+            </div>
+            <div class="slide" style="background-image: url('/slider/slide4.jpg');">
+                <div class="slide-overlay"></div>
+                <div class="slide-content">
+                    <h2>Custom</h2>
+                    <h1>JERSEYS</h1>
+                    <a href="/shop" class="slide-btn">Shop Now</a>
+                </div>
             </div>
         </div>
+        <div class="slider-nav">
+            <button class="slider-prev"><i class="fas fa-chevron-left"></i></button>
+            <button class="slider-next"><i class="fas fa-chevron-right"></i></button>
+        </div>
+        <div class="slider-dots"></div>
     </div>
 
     <!-- OUR POPULAR CATEGORIES Section (DM3 Style) -->
@@ -72,7 +102,6 @@
         <div class="container">
             <div class="section-header">
                 <h2 class="section-title">OUR POPULAR CATEGORIES</h2>
-                <p class="section-subtitle">Explore our premium collections</p>
             </div>
             
             <div class="categories-grid">
@@ -89,56 +118,34 @@
         </div>
     </section>
 
-    <!-- Promo Banners -->
-    <section class="promo-section">
-        <div class="container">
-            <div class="promo-grid">
-                <div class="promo-card">
-                    <div class="promo-icon">🏆</div>
-                    <h3>Premium Quality</h3>
-                    <p>Handcrafted with premium materials for lasting comfort</p>
-                </div>
-                <div class="promo-card">
-                    <div class="promo-icon">🚚</div>
-                    <h3>Free Shipping</h3>
-                    <p>Free delivery on all orders across India</p>
-                </div>
-                <div class="promo-card">
-                    <div class="promo-icon">💎</div>
-                    <h3>Custom Design</h3>
-                    <p>Personalize your jersey with custom printing</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Featured Products -->
+    <!-- NEW ARRIVALS Section -->
     <section class="products-section">
         <div class="container">
             <div class="section-header">
-                <h2 class="section-title">FEATURED COLLECTION</h2>
-                <p class="section-subtitle">Most popular items this month</p>
+                <h2 class="section-title">NEW ARRIVALS</h2>
             </div>
             
             <div class="products-grid">
-                <% products.forEach(product => { %>
+                <% products.slice(0, 4).forEach(product => { %>
                     <div class="product-card">
-                        <% if (product.stock < 5) { %>
-                            <div class="product-badge">Low Stock</div>
-                        <% } %>
+                        <div class="product-badge sale">SALE</div>
                         <div class="product-image">
                             <% if (product.image) { %>
                                 <img src="/uploads/<%= product.image %>" alt="<%= product.name %>">
                             <% } else { %>
-                                <div style="height: 200px; background: linear-gradient(135deg, #9b59b6, #8e44ad); display: flex; align-items: center; justify-content: center; font-size: 3rem;">
-                                    ✨
+                                <div class="product-placeholder">
+                                    <%= product.category === 'Cricket' ? '🏏' : 
+                                        product.category === 'Football' ? '⚽' : 
+                                        product.category === 'Cycling' ? '🚴' : '✨' %>
                                 </div>
                             <% } %>
                         </div>
                         <div class="product-info">
                             <h3><%= product.name %></h3>
-                            <p class="price"><%= currency %><%= product.price.toLocaleString('en-IN') %></p>
-                            <p class="description"><%= product.description.substring(0, 60) %>...</p>
+                            <div class="price-container">
+                                <span class="original-price"><%= currency %><%= (product.price * 1.2).toFixed(0) %></span>
+                                <span class="sale-price"><%= currency %><%= product.price.toLocaleString('en-IN') %></span>
+                            </div>
                             <form action="/cart/add/<%= product.id %>" method="POST">
                                 <button type="submit" class="add-to-cart-btn">Add to Cart</button>
                             </form>
@@ -149,39 +156,138 @@
         </div>
     </section>
 
-    <!-- Footer -->
-    <footer style="background: #0a0a0f; padding: 3rem 0; border-top: 1px solid rgba(155,89,182,0.3);">
+    <!-- Customer Reviews Section -->
+    <section class="reviews-section">
         <div class="container">
-            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem;">
-                <div>
-                    <img src="/moonlitpromise.png" alt="Moonlit Promise" style="height: 40px; margin-bottom: 1rem;">
-                    <p style="color: rgba(255,255,255,0.7);">Premium sports wear and fantasy dresses for every occasion.</p>
+            <div class="reviews-grid">
+                <div class="review-card">
+                    <div class="stars">★★★★★</div>
+                    <p class="review-text">Their attention to detail in design and use of premium materials ensures both style and functionality. Overall, it is a solid choice for those seeking personalised, top-notch athletic apparel.</p>
+                    <p class="review-author">- Balu M</p>
                 </div>
-                <div>
-                    <h4 style="color: #f1c40f; margin-bottom: 1rem;">Quick Links</h4>
-                    <ul style="list-style: none;">
-                        <li><a href="/about" style="color: rgba(255,255,255,0.7); text-decoration: none; line-height: 2;">About Us</a></li>
-                        <li><a href="/terms" style="color: rgba(255,255,255,0.7); text-decoration: none; line-height: 2;">Terms & Conditions</a></li>
-                        <li><a href="/privacy" style="color: rgba(255,255,255,0.7); text-decoration: none; line-height: 2;">Privacy Policy</a></li>
-                        <li><a href="/contact" style="color: rgba(255,255,255,0.7); text-decoration: none; line-height: 2;">Contact Us</a></li>
-                    </ul>
+                <div class="review-card">
+                    <div class="stars">★★★★★</div>
+                    <p class="review-text">Diverse selection, easy navigation, and top-tier customer service make this shop a winner. Quality custom jerseys, prompt delivery, and a hassle-free experience make it my go-to for all things sports apparel. 5 stars for an unmatched shopping journey!</p>
+                    <p class="review-author">- Gokul Nandu</p>
                 </div>
-                <div>
-                    <h4 style="color: #f1c40f; margin-bottom: 1rem;">Contact Info</h4>
-                    <p style="color: rgba(255,255,255,0.7);"><i class="fas fa-map-marker-alt"></i> All India Delivery</p>
-                    <p style="color: rgba(255,255,255,0.7);"><i class="fas fa-envelope"></i> support@moonlitpromise.com</p>
-                    <p style="color: rgba(255,255,255,0.7);"><i class="fas fa-phone"></i> +91 9876543210</p>
+                <div class="review-card">
+                    <div class="stars">★★★★★</div>
+                    <p class="review-text">This custom jerseys store kit is accurate printing and quality materials are available cheaper than other stores. Best jersey printing and sports shop.</p>
+                    <p class="review-author">- M Unais</p>
                 </div>
             </div>
-            <div style="text-align: center; margin-top: 3rem; padding-top: 2rem; border-top: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.5);">
-                <p>© 2025 Moonlit Promise. All rights reserved. Designed by Dev Rick</p>
+        </div>
+    </section>
+
+    <!-- Footer (DM3 Style) -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <img src="/moonlitpromise.png" alt="Moonlit Promise" class="footer-logo">
+                    <p>Our Social Links:</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                    </div>
+                </div>
+                <div class="footer-col">
+                    <ul class="footer-links">
+                        <li><a href="/privacy-policy">Privacy Policy</a></li>
+                        <li><a href="/exchange-return">Exchange & Return Policy</a></li>
+                        <li><a href="/terms">Terms and conditions</a></li>
+                        <li><a href="/faq">FAQ</a></li>
+                        <li><a href="/about">About us</a></li>
+                        <li><a href="/contact">Contact Us</a></li>
+                        <li><a href="/blogs">Blogs</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Email:</h4>
+                    <p><a href="mailto:dm3care@gmail.com">dm3care@gmail.com</a></p>
+                    <h4>Address:</h4>
+                    <p>
+                        1st floor, F 14/1,<br>
+                        Near Saraswathi construction,<br>
+                        F street, Panickers lane,<br>
+                        Shasthamangalam,<br>
+                        Trivandrum.
+                    </p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>© Copyright 2025 Moonlit Promise | All Rights Reserved. Designed by Dev Rick</p>
             </div>
         </div>
     </footer>
 
     <script>
-        // Particle effect
-        document.addEventListener('DOMContentLoaded', () => {
+        // Auto-rotating slider
+        document.addEventListener('DOMContentLoaded', function() {
+            const slides = document.querySelectorAll('.slide');
+            const prevBtn = document.querySelector('.slider-prev');
+            const nextBtn = document.querySelector('.slider-next');
+            const dotsContainer = document.querySelector('.slider-dots');
+            let currentSlide = 0;
+            let slideInterval;
+
+            // Create dots
+            slides.forEach((_, index) => {
+                const dot = document.createElement('span');
+                dot.classList.add('dot');
+                if (index === 0) dot.classList.add('active');
+                dot.addEventListener('click', () => goToSlide(index));
+                dotsContainer.appendChild(dot);
+            });
+
+            const dots = document.querySelectorAll('.dot');
+
+            function showSlide(index) {
+                slides.forEach(slide => slide.classList.remove('active'));
+                dots.forEach(dot => dot.classList.remove('active'));
+                
+                slides[index].classList.add('active');
+                dots[index].classList.add('active');
+                currentSlide = index;
+            }
+
+            function nextSlide() {
+                let next = (currentSlide + 1) % slides.length;
+                showSlide(next);
+            }
+
+            function prevSlide() {
+                let prev = (currentSlide - 1 + slides.length) % slides.length;
+                showSlide(prev);
+            }
+
+            function goToSlide(index) {
+                showSlide(index);
+                resetInterval();
+            }
+
+            function resetInterval() {
+                clearInterval(slideInterval);
+                slideInterval = setInterval(nextSlide, 5000);
+            }
+
+            if (slides.length > 0) {
+                showSlide(0);
+                slideInterval = setInterval(nextSlide, 5000);
+                
+                if (nextBtn) nextBtn.addEventListener('click', () => {
+                    nextSlide();
+                    resetInterval();
+                });
+                
+                if (prevBtn) prevBtn.addEventListener('click', () => {
+                    prevSlide();
+                    resetInterval();
+                });
+            }
+
+            // Particle effect
             const particles = document.querySelector('.magical-particles');
             for (let i = 0; i < 30; i++) {
                 const particle = document.createElement('div');
