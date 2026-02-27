@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Track Order - Moonlit Promise</title>
+    <link rel="stylesheet" href="/style.css">
+    <style>
+        .tracking-container {
+            max-width: 800px;
+            margin: 4rem auto;
+            padding: 0 2rem;
+        }
+        
+        .tracking-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        
+        .order-number {
+            font-size: 1.5rem;
+            color: #f1c40f;
+        }
+        
+        .status-timeline {
+            margin: 3rem 0;
+            position: relative;
+        }
+        
+        .timeline-item {
+            display: flex;
+            margin-bottom: 2rem;
+            position: relative;
+        }
+        
+        .timeline-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(155,89,182,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            z-index: 2;
+        }
+        
+        .timeline-icon.completed {
+            background: #2ecc71;
+        }
+        
+        .timeline-icon.current {
+            background: #f1c40f;
+            animation: pulse 2s infinite;
+        }
+        
+        .timeline-content {
+            flex: 1;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid rgba(155,89,182,0.3);
+        }
+        
+        .timeline-date {
+            color: rgba(255,255,255,0.6);
+            font-size: 0.9rem;
+        }
+        
+        .delivery-card {
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            padding: 2rem;
+            margin: 2rem 0;
+            border: 1px solid rgba(155,89,182,0.3);
+        }
+        
+        .qr-code {
+            max-width: 200px;
+            margin: 2rem auto;
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(241,196,15,0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(241,196,15,0); }
+            100% { box-shadow: 0 0 0 0 rgba(241,196,15,0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="magical-particles"></div>
+    
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <img src="/moonlitpromise.png" alt="Moonlit Promise">
+            </div>
+            <ul class="nav-links">
+                <li><a href="/">Home</a></li>
+                <li><a href="/shop">Shop</a></li>
+                <li><a href="/cart">Cart</a></li>
+                <li><a href="/history">History</a></li>
+                <li><a href="/about">About</a></li>
+                <li><a href="/terms">Terms</a></li>
+                <% if (user && isAdmin) { %>
+                    <li><a href="/admin">Admin</a></li>
+                <% } %>
+            </ul>
+            <div class="auth-buttons">
+                <% if (user) { %>
+                    <div class="user-profile">
+                        <img src="https://cdn.discordapp.com/avatars/<%= user.id %>/<%= user.avatar %>.png" alt="Avatar">
+                        <span><%= user.username %></span>
+                        <a href="/logout" class="logout-btn">Logout</a>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+    </nav>
+
+    <main class="tracking-container">
+        <div class="tracking-header">
+            <h1>🔍 Track Your Order</h1>
+            <div class="order-number">Order #<%= order.orderNumber %></div>
+            <div style="margin-top: 1rem;">
+                <span class="status-badge status-<%= order.orderStatus %>">
+                    <%= order.orderStatus.toUpperCase() %>
+                </span>
+            </div>
+        </div>
+        
+        <!-- Delivery Address -->
+        <div class="delivery-card">
+            <h3>📦 Delivery Address</h3>
+            <p><%= order.fullName %><br>
+            <%= order.address %><br>
+            <%= order.pincode %><br>
+            📞 <%= order.phone %></p>
+        </div>
+        
+        <!-- Order Items -->
+        <div class="delivery-card">
+            <h3>🛍️ Order Items</h3>
+            <% items.forEach(item => { %>
+                <div style="display:flex; justify-content:space-between; padding:0.5rem 0; border-bottom:1px dashed rgba(155,89,182,0.2);">
+                    <span><%= item.name %><% if (item.quantity > 1) { %> (x<%= item.quantity %>)<% } %></span>
+                    <span><%= currency %><%= (item.price * (item.quantity || 1)).toLocaleString('en-IN') %></span>
+                </div>
+            <% }) %>
+            <div style="display:flex; justify-content:space-between; margin-top:1rem; font-weight:bold; color:#f1c40f;">
+                <span>Total</span>
+                <span><%= currency %><%= order.totalAmount.toLocaleString('en-IN') %></span>
+            </div>
+        </div>
+        
+        <!-- Payment Info -->
+        <div class="delivery-card">
+            <h3>💰 Payment Information</h3>
+            <p>Method: <%= order.paymentMethod.toUpperCase() %><br>
+            Status: <span style="color:<%= order.paymentStatus === 'completed' ? '#2ecc71' : '#f1c40f' %>">
+                <%= order.paymentStatus === 'completed' ? '✓ Paid' : '⏳ Pending' %>
+            </span></p>
+        </div>
+        
+        <!-- Tracking Timeline -->
+        <h3 style="margin: 2rem 0 1rem;">📋 Order Timeline</h3>
+        <div class="status-timeline">
+            <% 
+            const timelineSteps = [
+                { status: 'pending', label: 'Order Placed', icon: '📝' },
+                { status: 'processing', label: 'Processing', icon: '⚙️' },
+                { status: 'shipped', label: 'Shipped', icon: '📦' },
+                { status: 'out_for_delivery', label: 'Out for Delivery', icon: '🚚' },
+                { status: 'delivered', label: 'Delivered', icon: '✅' }
+            ];
+            
+            let foundCurrent = false;
+            timelineSteps.forEach(step => {
+                const isCompleted = 
+                    (step.status === 'pending' && order.orderStatus !== 'cancelled') ||
+                    (step.status === 'processing' && ['processing', 'shipped', 'out_for_delivery', 'delivered'].includes(order.orderStatus)) ||
+                    (step.status === 'shipped' && ['shipped', 'out_for_delivery', 'delivered'].includes(order.orderStatus)) ||
+                    (step.status === 'out_for_delivery' && ['out_for_delivery', 'delivered'].includes(order.orderStatus)) ||
+                    (step.status === 'delivered' && order.orderStatus === 'delivered');
+                
+                const isCurrent = step.status === order.orderStatus;
+                if (isCurrent) foundCurrent = true;
+            %>
+                <div class="timeline-item">
+                    <div class="timeline-icon <%= isCompleted ? 'completed' : (isCurrent ? 'current' : '') %>">
+                        <%= step.icon %>
+                    </div>
+                    <div class="timeline-content">
+                        <strong><%= step.label %></strong>
+                        <% if (step.status === order.orderStatus) { %>
+                            <div class="timeline-date">Current Status</div>
+                        <% } %>
+                    </div>
+                </div>
+            <% }) %>
+            
+            <% if (order.orderStatus === 'cancelled') { %>
+                <div class="timeline-item">
+                    <div class="timeline-icon" style="background:#e74c3c;">❌</div>
+                    <div class="timeline-content">
+                        <strong>Cancelled</strong>
+                    </div>
+                </div>
+            <% } %>
+        </div>
+        
+        <!-- Status History -->
+        <% if (statusHistory && statusHistory.length > 0) { %>
+            <h3 style="margin: 2rem 0 1rem;">📜 Status History</h3>
+            <div class="delivery-card">
+                <% statusHistory.forEach(history => { %>
+                    <div style="padding:0.5rem 0; border-bottom:1px solid rgba(255,255,255,0.05);">
+                        <div style="display:flex; justify-content:space-between;">
+                            <span><strong><%= history.status %></strong></span>
+                            <span class="timeline-date"><%= new Date(history.changedAt).toLocaleString() %></span>
+                        </div>
+                        <% if (history.notes) { %>
+                            <div style="font-size:0.9rem; color:rgba(255,255,255,0.7);"><%= history.notes %></div>
+                        <% } %>
+                    </div>
+                <% }) %>
+            </div>
+        <% } %>
+        
+        <!-- Delivery Updates -->
+        <% if (deliveryLogs && deliveryLogs.length > 0) { %>
+            <h3 style="margin: 2rem 0 1rem;">🚚 Delivery Updates</h3>
+            <div class="delivery-card">
+                <% deliveryLogs.forEach(log => { %>
+                    <div style="padding:0.5rem 0; border-bottom:1px solid rgba(255,255,255,0.05);">
+                        <div style="display:flex; justify-content:space-between;">
+                            <span><strong><%= log.status %></strong></span>
+                            <span class="timeline-date"><%= new Date(log.createdAt).toLocaleString() %></span>
+                        </div>
+                        <% if (log.notes) { %>
+                            <div style="font-size:0.9rem;"><%= log.notes %></div>
+                        <% } %>
+                        <% if (log.location) { %>
+                            <div style="font-size:0.8rem; color:rgba(255,255,255,0.5);">📍 <%= log.location %></div>
+                        <% } %>
+                    </div>
+                <% }) %>
+            </div>
+        <% } %>
+        
+        <!-- Tracking Info -->
+        <% if (order.deliveryTracking) { %>
+            <div class="delivery-card">
+                <h3>🔢 Tracking Number</h3>
+                <p style="font-family: monospace; font-size: 1.2rem;"><%= order.deliveryTracking %></p>
+                <% if (order.courierName) { %>
+                    <p>Courier: <%= order.courierName %></p>
+                <% } %>
+            </div>
+        <% } %>
+        
+        <!-- Help Section -->
+        <div style="text-align: center; margin-top: 3rem; padding: 2rem; background: rgba(155,89,182,0.1); border-radius: 15px;">
+            <h3>Need Help?</h3>
+            <p>Contact us for any queries about your order</p>
+            <p style="color: #f1c40f;">📞 +91 9876543210</p>
+            <p style="color: #f1c40f;">📧 support@moonlitpromise.com</p>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <p>Dev Rick • Moonlit Promise</p>
+            <p>✨ Where every purchase is a promise under the stars ✨</p>
+        </div>
+    </footer>
+</body>
+</html>
