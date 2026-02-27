@@ -1,1 +1,1 @@
-echo "20.18.0" > .node-version
+20.18.0
