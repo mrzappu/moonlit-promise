@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= product ? 'Edit' : 'Add' %> Product - Moonlit Promise</title>
+    <link rel="stylesheet" href="/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="magical-particles"></div>
+    
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <img src="/moonlitpromise.png" alt="Moonlit Promise" class="logo-image">
+                <div class="moon-glow"></div>
+            </div>
+            <ul class="nav-links">
+                <li><a href="/">Home</a></li>
+                <li><a href="/shop">Shop</a></li>
+                <li><a href="/cart">Cart</a></li>
+                <li><a href="/history">History</a></li>
+                <li><a href="/about">About</a></li>
+                <li><a href="/terms">Terms</a></li>
+                <li><a href="/admin">Admin</a></li>
+            </ul>
+            <div class="auth-buttons">
+                <div class="user-profile">
+                    <img src="https://cdn.discordapp.com/avatars/<%= user.id %>/<%= user.avatar %>.png" alt="Avatar">
+                    <span><%= user.username %></span>
+                    <a href="/logout" class="logout-btn">Logout</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <div style="max-width: 800px; margin: 4rem auto; padding: 2rem; background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); border-radius: 20px; border: 1px solid rgba(155,89,182,0.3);">
+            <h1 style="text-align: center; margin-bottom: 2rem;"><%= product ? 'Edit Product' : 'Add New Product' %></h1>
+            
+            <form action="<%= product ? '/admin/product/update/' + product.id : '/admin/product/create' %>" method="POST" enctype="multipart/form-data">
+                <div style="margin-bottom: 1rem;">
+                    <label style="display: block; margin-bottom: 0.5rem;">Product Name *</label>
+                    <input type="text" name="name" value="<%= product ? product.name : '' %>" required style="width: 100%; padding: 0.8rem; border-radius: 10px; border: 1px solid rgba(155,89,182,0.3); background: rgba(255,255,255,0.1); color: white;">
+                </div>
+                
+                <div style="margin-bottom: 1rem;">
+                    <label style="display: block; margin-bottom: 0.5rem;">Price (<%= currency %>) *</label>
+                    <input type="number" name="price" value="<%= product ? product.price : '' %>" required min="1" style="width: 100%; padding: 0.8rem; border-radius: 10px; border: 1px solid rgba(155,89,182,0.3); background: rgba(255,255,255,0.1); color: white;">
+                </div>
+                
+                <div style="margin-bottom: 1rem;">
+                    <label style="display: block; margin-bottom: 0.5rem;">Description *</label>
+                    <textarea name="description" required rows="4" style="width: 100%; padding: 0.8rem; border-radius: 10px; border: 1px solid rgba(155,89,182,0.3); background: rgba(255,255,255,0.1); color: white;"><%= product ? product.description : '' %></textarea>
+                </div>
+                
+                <div style="margin-bottom: 1rem;">
+                    <label style="display: block; margin-bottom: 0.5rem;">Category</label>
+                    <select name="category_slug" style="width: 100%; padding: 0.8rem; border-radius: 10px; border: 1px solid rgba(155,89,182,0.3); background: rgba(255,255,255,0.1); color: white;">
+                        <option value="">-- Select Category --</option>
+                        <% categories.forEach(cat => { %>
+                            <option value="<%= cat.slug %>" <%= product && product.category_slug === cat.slug ? 'selected' : '' %>><%= cat.name %></option>
+                        <% }) %>
+                    </select>
+                </div>
+                
+                <div style="margin-bottom: 1rem;">
+                    <label style="display: block; margin-bottom: 0.5rem;">Sport Type (for sports products)</label>
+                    <select name="sport_type" style="width: 100%; padding: 0.8rem; border-radius: 10px; border: 1px solid rgba(155,89,182,0.3); background: rgba(255,255,255,0.1); color: white;">
+                        <option value="">-- Not a sports product --</option>
+                        <option value="cricket" <%= product && product.sport_type === 'cricket' ? 'selected' : '' %>>Cricket</option>
+                        <option value="football" <%= product && product.sport_type === 'football' ? 'selected' : '' %>>Football</option>
+                        <option value="cycling" <%= product && product.sport_type === 'cycling' ? 'selected' : '' %>>Cycling</option>
+                        <option value="badminton" <%= product && product.sport_type === 'badminton' ? 'selected' : '' %>>Badminton</option>
+                        <option value="basketball" <%= product && product.sport_type === 'basketball' ? 'selected' : '' %>>Basketball</option>
+                        <option value="biker" <%= product && product.sport_type === 'biker' ? 'selected' : '' %>>Biker</option>
+                        <option value="esports" <%= product && product.sport_type === 'esports' ? 'selected' : '' %>>Esports</option>
+                        <option value="tennis" <%= product && product.sport_type === 'tennis' ? 'selected' : '' %>>Tennis</option>
+                        <option value="running" <%= product && product.sport_type === 'running' ? 'selected' : '' %>>Running</option>
+                        <option value="jacket" <%= product && product.sport_type === 'jacket' ? 'selected' : '' %>>Jacket</option>
+                        <option value="gym" <%= product && product.sport_type === 'gym' ? 'selected' : '' %>>Gym</option>
+                        <option value="kabaddi" <%= product && product.sport_type === 'kabaddi' ? 'selected' : '' %>>Kabaddi</option>
+                    </select>
+                </div>
+                
+                <div style="margin-bottom: 1rem;">
+                    <label style="display: block; margin-bottom: 0.5rem;">Dress Type (for dress products)</label>
+                    <select name="dress_type" style="width: 100%; padding: 0.8rem; border-radius: 10px; border: 1px solid rgba(155,89,182,0.3); background: rgba(255,255,255,0.1); color: white;">
+                        <option value="">-- Not a dress product --</option>
+                        <option value="wedding" <%= product && product.dress_type === 'wedding' ? 'selected' : '' %>>Wedding</option>
+                        <option value="fantasy" <%= product && product.dress_type === 'fantasy' ? 'selected' : '' %>>Fantasy</option>
+                        <option value="couple" <%= product && product.dress_type === 'couple' ? 'selected' : '' %>>Couple</option>
+                        <option value="evening" <%= product && product.dress_type === 'evening' ? 'selected' : '' %>>Evening</option>
+                        <option value="bridal" <%= product && product.dress_type === 'bridal' ? 'selected' : '' %>>Bridal</option>
+                        <option value="engagement" <%= product && product.dress_type === 'engagement' ? 'selected' : '' %>>Engagement</option>
+                    </select>
+                </div>
+                
+                <div style="margin-bottom: 1rem;">
+                    <label style="display: block; margin-bottom: 0.5rem;">Stock Quantity</label>
+                    <input type="number" name="stock" value="<%= product ? product.stock : 10 %>" min="0" style="width: 100%; padding: 0.8rem; border-radius: 10px; border: 1px solid rgba(155,89,182,0.3); background: rgba(255,255,255,0.1); color: white;">
+                </div>
+                
+                <div style="margin-bottom: 1rem;">
+                    <label style="display: flex; align-items: center;">
+                        <input type="checkbox" name="is_featured" value="1" <%= product && product.is_featured ? 'checked' : '' %> style="margin-right: 0.5rem;">
+                        <span>Featured Product (show on homepage)</span>
+                    </label>
+                </div>
+                
+                <div style="margin-bottom: 2rem;">
+                    <label style="display: block; margin-bottom: 0.5rem;">Product Image</label>
+                    <input type="file" name="productImage" accept=".png,.jpg,.jpeg" <%= !product ? 'required' : '' %> style="width: 100%; padding: 0.8rem; border-radius: 10px; border: 1px solid rgba(155,89,182,0.3); background: rgba(255,255,255,0.1); color: white;">
+                    <% if (product && product.image) { %>
+                        <p style="margin-top: 0.5rem;">Current: <%= product.image %></p>
+                    <% } %>
+                </div>
+                
+                <div style="display: flex; gap: 1rem;">
+                    <button type="submit" class="btn primary" style="flex: 1;">Save Product</button>
+                    <a href="/admin" class="btn secondary" style="flex: 1; text-align: center;">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <p>Dev Rick • Moonlit Promise</p>
+            <p>✨ Where every purchase is a promise under the stars ✨</p>
+        </div>
+    </footer>
+</body>
+</html>
