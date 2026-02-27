@@ -17,12 +17,20 @@ module.exports = {
     // Auto Role ID
     AUTO_ROLE_ID: process.env.AUTO_ROLE_ID,
     
-    // Admin Discord ID (for admin panel access)
-    ADMIN_ID: process.env.ADMIN_ID,
+    // Admin Discord IDs (MULTIPLE ADMINS)
+    ADMIN_IDS: process.env.ADMIN_IDS ? process.env.ADMIN_IDS.split(',') : [],
     
     // Session Secret
-    SESSION_SECRET: process.env.SESSION_SECRET,
+    SESSION_SECRET: process.env.SESSION_SECRET || 'moonlit-promise-secret-key',
     
     // Server URL
-    BASE_URL: process.env.BASE_URL || 'http://localhost:3000'
+    BASE_URL: process.env.BASE_URL || 'http://localhost:3000',
+    
+    // Twilio SMS
+    TWILIO_ACCOUNT_SID: process.env.TWILIO_ACCOUNT_SID,
+    TWILIO_AUTH_TOKEN: process.env.TWILIO_AUTH_TOKEN,
+    TWILIO_PHONE_NUMBER: process.env.TWILIO_PHONE_NUMBER,
+    
+    // Currency
+    CURRENCY: process.env.CURRENCY || '₹'
 };
