@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Track Order - Moonlit Promise</title>
+    <link rel="stylesheet" href="/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .tracking-container {
+            max-width: 900px;
+            margin: 4rem auto;
+            padding: 0 2rem;
+        }
+
+        .tracking-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .tracking-header h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(135deg, #fff, #ffd7ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1rem;
+        }
+
+        .order-number {
+            font-size: 1.5rem;
+            color: #f1c40f;
+            font-weight: 700;
+            letter-spacing: 2px;
+            margin-bottom: 0.5rem;
+        }
+
+        .order-status {
+            display: inline-block;
+            padding: 0.5rem 2rem;
+            border-radius: 30px;
+            font-size: 1rem;
+            font-weight: 600;
+            margin-top: 1rem;
+        }
+
+        .status-pending { background: rgba(241, 196, 15, 0.2); color: #f1c40f; border: 1px solid #f1c40f; }
+        .status-processing { background: rgba(52, 152, 219, 0.2); color: #3498db; border: 1px solid #3498db; }
+        .status-shipped { background: rgba(155, 89, 182, 0.2); color: #9b59b6; border: 1px solid #9b59b6; }
+        .status-out_for_delivery { background: rgba(241, 196, 15, 0.2); color: #f1c40f; border: 1px solid #f1c40f; }
+        .status-delivered { background: rgba(46, 204, 113, 0.2); color: #2ecc71; border: 1px solid #2ecc71; }
+        .status-cancelled { background: rgba(231, 76, 60, 0.2); color: #e74c3c; border: 1px solid #e74c3c; }
+
+        .tracking-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(155, 89, 182, 0.3);
+        }
+
+        .tracking-title {
+            color: #f1c40f;
+            font-size: 1.3rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Timeline */
+        .timeline {
+            position: relative;
+            padding: 1rem 0;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 20px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(to bottom, #9b59b6, #f1c40f);
+            opacity: 0.3;
+        }
+
+        .timeline-item {
+            position: relative;
+            padding-left: 50px;
+            margin-bottom: 2rem;
+        }
+
+        .timeline-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .timeline-icon {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 40px;
+            height: 40px;
+            background: rgba(155, 89, 182, 0.2);
+            border: 2px solid #9b59b6;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            z-index: 2;
+        }
+
+        .timeline-icon.completed {
+            background: #9b59b6;
+            border-color: #f1c40f;
+        }
+
+        .timeline-icon.current {
+            background: #f1c40f;
+            border-color: #9b59b6;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(241, 196, 15, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(241, 196, 15, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(241, 196, 15, 0); }
+        }
+
+        .timeline-content {
+            background: rgba(255, 255, 255, 0.03);
+            padding: 1rem;
+            border-radius: 10px;
+            border: 1px solid rgba(155, 89, 182, 0.2);
+        }
+
+        .timeline-content h4 {
+            color: #f1c40f;
+            margin-bottom: 0.3rem;
+        }
+
+        .timeline-content p {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.95rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .timeline-date {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.85rem;
+        }
+
+        /* Info Grid */
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .info-box {
+            background: rgba(255, 255, 255, 0.03);
+            padding: 1.5rem;
+            border-radius: 15px;
+            border: 1px solid rgba(155, 89, 182, 0.2);
+        }
+
+        .info-box h3 {
+            color: #f1c40f;
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .info-box p {
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.6;
+            margin-bottom: 0.3rem;
+        }
+
+        /* Items List */
+        .items-list {
+            margin: 1rem 0;
+        }
+
+        .item-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.8rem 0;
+            border-bottom: 1px solid rgba(155, 89, 182, 0.2);
+        }
+
+        .item-row:last-child {
+            border-bottom: none;
+        }
+
+        .item-name {
+            flex: 2;
+        }
+
+        .item-quantity {
+            flex: 1;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .item-price {
+            flex: 1;
+            text-align: right;
+            color: #f1c40f;
+            font-weight: 600;
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            margin: 2rem 0;
+        }
+
+        .progress-steps {
+            display: flex;
+            justify-content: space-between;
+            position: relative;
+            margin-bottom: 2rem;
+        }
+
+        .progress-step {
+            flex: 1;
+            text-align: center;
+            position: relative;
+            z-index: 2;
+        }
+
+        .step-icon {
+            width: 50px;
+            height: 50px;
+            background: rgba(155, 89, 182, 0.2);
+            border: 2px solid #9b59b6;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 0.5rem;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+        }
+
+        .step-icon.completed {
+            background: #9b59b6;
+            border-color: #f1c40f;
+        }
+
+        .step-icon.current {
+            background: #f1c40f;
+            border-color: #9b59b6;
+            transform: scale(1.1);
+        }
+
+        .step-label {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+        }
+
+        .step-label.active {
+            color: #f1c40f;
+            font-weight: 600;
+        }
+
+        .progress-line {
+            position: absolute;
+            top: 25px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: rgba(155, 89, 182, 0.3);
+            z-index: 1;
+        }
+
+        .progress-line-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #9b59b6, #f1c40f);
+            transition: width 0.5s ease;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 2rem;
+        }
+
+        .btn {
+            padding: 0.8rem 2rem;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #9b59b6, #8e44ad);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid #9b59b6;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(155, 89, 182, 0.4);
+        }
+
+        @media (max-width: 768px) {
+            .progress-steps {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .progress-line {
+                display: none;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="magical-particles"></div>
+    
+    <!-- Top Bar -->
+    <div class="top-bar">
+        <div class="container">
+            <i class="fas fa-truck"></i> FREE SHIPPING on all orders above ₹999 | All India Delivery
+        </div>
+    </div>
+    
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <img src="/moonlitpromise.png" alt="Moonlit Promise">
+            </div>
+            <ul class="nav-links">
+                <li><a href="/">Home</a></li>
+                <li><a href="/shop">Shop</a></li>
+                <li><a href="/cart">Cart</a></li>
+                <li><a href="/history">History</a></li>
+                <li><a href="/about">About</a></li>
+                <li><a href="/terms">Terms</a></li>
+                <% if (isAdmin) { %>
+                    <li><a href="/admin">Admin</a></li>
+                <% } %>
+            </ul>
+            <div class="auth-buttons">
+                <% if (user) { %>
+                    <div class="user-profile">
+                        <img src="https://cdn.discordapp.com/avatars/<%= user.id %>/<%= user.avatar %>.png" alt="Avatar">
+                        <span><%= user.username %></span>
+                        <a href="/logout" class="logout-btn">Logout</a>
+                    </div>
+                <% } else { %>
+                    <a href="/auth/discord" class="discord-btn">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 127.14 96.36">
+                            <path fill="#fff" d="M107.7,8.07A105.15,105.15,0,0,0,81.47,0a72.06,72.06,0,0,0-3.36,6.83A97.68,97.68,0,0,0,49,6.83,72.37,72.37,0,0,0,45.64,0,105.89,105.89,0,0,0,19.39,8.09C2.79,32.65-1.71,56.6.54,80.21h0A105.73,105.73,0,0,0,32.71,96.36,77.7,77.7,0,0,0,39.6,85.25a68.42,68.42,0,0,1-10.85-5.18c.91-.66,1.8-1.34,2.66-2a75.57,75.57,0,0,0,64.32,0c.87.71,1.76,1.39,2.66,2a68.68,68.68,0,0,1-10.87,5.19,77,77,0,0,0,6.89,11.1A105.25,105.25,0,0,0,126.6,80.22h0C129.24,53.84,122.09,29.11,107.7,8.07ZM42.45,65.69C36.18,65.69,31,60,31,53s5-12.74,11.43-12.74S54,46,53.89,53,48.84,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.25,60,73.25,53s5-12.74,11.44-12.74S96.23,46,96.12,53,91.08,65.69,84.69,65.69Z"/>
+                        </svg>
+                        Login
+                    </a>
+                <% } %>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <div class="tracking-container">
+            <!-- Header -->
+            <div class="tracking-header">
+                <h1><i class="fas fa-map-marker-alt"></i> Track Your Order</h1>
+                <div class="order-number">#<%= order.orderNumber %></div>
+                <div class="order-status status-<%= order.orderStatus %>">
+                    <i class="fas fa-<%= 
+                        order.orderStatus === 'delivered' ? 'check-circle' :
+                        order.orderStatus === 'shipped' ? 'truck' :
+                        order.orderStatus === 'out_for_delivery' ? 'motorcycle' :
+                        order.orderStatus === 'processing' ? 'cog' :
+                        order.orderStatus === 'cancelled' ? 'times-circle' :
+                        'clock'
+                    %>"></i>
+                    <%= order.orderStatus.toUpperCase().replace('_', ' ') %>
+                </div>
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="tracking-card">
+                <h3 class="tracking-title"><i class="fas fa-chart-line"></i> Delivery Progress</h3>
+                <div class="progress-container">
+                    <div class="progress-steps">
+                        <div class="progress-step">
+                            <div class="step-icon <%= ['pending', 'processing', 'shipped', 'out_for_delivery', 'delivered'].includes(order.orderStatus) ? 'completed' : '' %>">
+                                <i class="fas fa-check"></i>
+                            </div>
+                            <div class="step-label <%= order.orderStatus !== 'cancelled' ? 'active' : '' %>">Confirmed</div>
+                        </div>
+                        <div class="progress-step">
+                            <div class="step-icon <%= ['processing', 'shipped', 'out_for_delivery', 'delivered'].includes(order.orderStatus) ? 'completed' : '' %> 
+                                <%= order.orderStatus === 'processing' ? 'current' : '' %>">
+                                <i class="fas fa-cog"></i>
+                            </div>
+                            <div class="step-label <%= order.orderStatus === 'processing' ? 'active' : '' %>">Processing</div>
+                        </div>
+                        <div class="progress-step">
+                            <div class="step-icon <%= ['shipped', 'out_for_delivery', 'delivered'].includes(order.orderStatus) ? 'completed' : '' %>
+                                <%= order.orderStatus === 'shipped' ? 'current' : '' %>">
+                                <i class="fas fa-truck"></i>
+                            </div>
+                            <div class="step-label <%= order.orderStatus === 'shipped' ? 'active' : '' %>">Shipped</div>
+                        </div>
+                        <div class="progress-step">
+                            <div class="step-icon <%= ['out_for_delivery', 'delivered'].includes(order.orderStatus) ? 'completed' : '' %>
+                                <%= order.orderStatus === 'out_for_delivery' ? 'current' : '' %>">
+                                <i class="fas fa-motorcycle"></i>
+                            </div>
+                            <div class="step-label <%= order.orderStatus === 'out_for_delivery' ? 'active' : '' %>">Out for Delivery</div>
+                        </div>
+                        <div class="progress-step">
+                            <div class="step-icon <%= order.orderStatus === 'delivered' ? 'completed current' : '' %>">
+                                <i class="fas fa-home"></i>
+                            </div>
+                            <div class="step-label <%= order.orderStatus === 'delivered' ? 'active' : '' %>">Delivered</div>
+                        </div>
+                        <div class="progress-line">
+                            <div class="progress-line-fill" style="width: <%= 
+                                order.orderStatus === 'delivered' ? '100' :
+                                order.orderStatus === 'out_for_delivery' ? '80' :
+                                order.orderStatus === 'shipped' ? '60' :
+                                order.orderStatus === 'processing' ? '40' :
+                                order.orderStatus === 'pending' ? '20' : '0'
+                            %>%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Info Grid -->
+            <div class="info-grid">
+                <!-- Shipping Address -->
+                <div class="info-box">
+                    <h3><i class="fas fa-map-marker-alt"></i> Shipping Address</h3>
+                    <p><strong><%= order.fullName %></strong></p>
+                    <p><%= order.address %></p>
+                    <p>Pincode: <%= order.pincode %></p>
+                    <p><i class="fas fa-phone"></i> <%= order.phone %></p>
+                </div>
+
+                <!-- Payment Info -->
+                <div class="info-box">
+                    <h3><i class="fas fa-credit-card"></i> Payment Info</h3>
+                    <p><strong>Method:</strong> <%= order.paymentMethod === 'cod' ? 'Cash on Delivery' : 'Online Payment' %></p>
+                    <p><strong>Status:</strong> 
+                        <span style="color: <%= order.paymentStatus === 'completed' ? '#2ecc71' : '#f1c40f' %>">
+                            <%= order.paymentStatus.toUpperCase() %>
+                        </span>
+                    </p>
+                    <p><strong>Amount:</strong> ₹<%= order.totalAmount.toLocaleString('en-IN') %></p>
+                </div>
+
+                <!-- Tracking Info -->
+                <div class="info-box">
+                    <h3><i class="fas fa-box"></i> Tracking Info</h3>
+                    <% if (order.deliveryTracking) { %>
+                        <p><strong>Tracking ID:</strong> <%= order.deliveryTracking %></p>
+                        <p><strong>Courier:</strong> <%= order.courierName || 'Standard Shipping' %></p>
+                    <% } else { %>
+                        <p>Tracking ID will be updated once order ships</p>
+                    <% } %>
+                    <p><strong>Order Date:</strong> <%= new Date(order.createdAt).toLocaleDateString() %></p>
+                </div>
+            </div>
+
+            <!-- Order Items -->
+            <div class="tracking-card">
+                <h3 class="tracking-title"><i class="fas fa-shopping-bag"></i> Order Items</h3>
+                <div class="items-list">
+                    <% items.forEach(item => { %>
+                        <div class="item-row">
+                            <div class="item-name">
+                                <%= item.name %>
+                                <% if (item.quantity > 1) { %>
+                                    <span style="color: #f1c40f;">(x<%= item.quantity %>)</span>
+                                <% } %>
+                            </div>
+                            <div class="item-quantity">Qty: <%= item.quantity %></div>
+                            <div class="item-price">₹<%= (item.price * item.quantity).toLocaleString('en-IN') %></div>
+                        </div>
+                    <% }) %>
+                </div>
+                <div style="text-align: right; margin-top: 1rem; padding-top: 1rem; border-top: 2px solid #9b59b6;">
+                    <strong style="color: #f1c40f; font-size: 1.2rem;">Total: ₹<%= (order.totalAmount + (order.totalAmount >= 999 ? 0 : 99)).toLocaleString('en-IN') %></strong>
+                </div>
+            </div>
+
+            <!-- Status Timeline -->
+            <div class="tracking-card">
+                <h3 class="tracking-title"><i class="fas fa-history"></i> Status History</h3>
+                <div class="timeline">
+                    <% if (statusHistory && statusHistory.length > 0) { %>
+                        <% statusHistory.forEach((history, index) => { %>
+                            <div class="timeline-item">
+                                <div class="timeline-icon <%= index === 0 ? 'current' : 'completed' %>">
+                                    <i class="fas fa-<%= 
+                                        history.status === 'delivered' ? 'check' :
+                                        history.status === 'shipped' ? 'truck' :
+                                        history.status === 'out_for_delivery' ? 'motorcycle' :
+                                        'clock'
+                                    %>"></i>
+                                </div>
+                                <div class="timeline-content">
+                                    <h4><%= history.status.toUpperCase().replace('_', ' ') %></h4>
+                                    <% if (history.notes) { %>
+                                        <p><%= history.notes %></p>
+                                    <% } %>
+                                    <div class="timeline-date">
+                                        <i class="far fa-clock"></i> <%= new Date(history.changedAt).toLocaleString() %>
+                                    </div>
+                                </div>
+                            </div>
+                        <% }) %>
+                    <% } else { %>
+                        <div class="timeline-item">
+                            <div class="timeline-icon current">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div class="timeline-content">
+                                <h4>ORDER PLACED</h4>
+                                <p>Your order has been received and is being processed</p>
+                                <div class="timeline-date">
+                                    <i class="far fa-clock"></i> <%= new Date(order.createdAt).toLocaleString() %>
+                                </div>
+                            </div>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+                <a href="/history" class="btn btn-secondary">
+                    <i class="fas fa-history"></i> Back to History
+                </a>
+                <a href="/shop" class="btn btn-primary">
+                    <i class="fas fa-shopping-bag"></i> Continue Shopping
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer" style="background: #0a0a0f; padding: 2rem 0; margin-top: 4rem; border-top: 1px solid rgba(155,89,182,0.3);">
+        <div class="container">
+            <div style="text-align: center; color: rgba(255,255,255,0.5);">
+                <p>© 2025 Moonlit Promise. Track your orders in real-time.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Auto-refresh tracking every 30 seconds
+        setTimeout(() => {
+            location.reload();
+        }, 30000);
+
+        // Particle effect
+        document.addEventListener('DOMContentLoaded', () => {
+            const particles = document.querySelector('.magical-particles');
+            for (let i = 0; i < 20; i++) {
+                const particle = document.createElement('div');
+                particle.classList.add('particle');
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.top = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 5 + 's';
+                particle.style.width = (Math.random() * 4 + 1) + 'px';
+                particle.style.height = particle.style.width;
+                particles.appendChild(particle);
+            }
+        });
+    </script>
+</body>
+</html>
