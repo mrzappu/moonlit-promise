@@ -1,16 +1,13 @@
-// logger.js - Winston logging system
 const winston = require('winston');
 const DailyRotateFile = require('winston-daily-rotate-file');
 const path = require('path');
 const fs = require('fs');
 
-// Create logs directory if not exists
 const logDir = path.join(__dirname, 'logs');
 if (!fs.existsSync(logDir)) {
     fs.mkdirSync(logDir, { recursive: true });
 }
 
-// Custom format for readable logs
 const customFormat = winston.format.combine(
     winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
     winston.format.errors({ stack: true }),
@@ -20,13 +17,11 @@ const customFormat = winston.format.combine(
     })
 );
 
-// JSON format for machine parsing
 const jsonFormat = winston.format.combine(
     winston.format.timestamp(),
     winston.format.json()
 );
 
-// Create loggers
 const loggers = {
     app: winston.createLogger({
         level: process.env.LOG_LEVEL || 'info',
