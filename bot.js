@@ -1,146 +1,295 @@
+// bot.js - Discord bot with full logging capabilities
 const { Client, GatewayIntentBits, EmbedBuilder } = require('discord.js');
 const config = require('./config');
+const Logger = require('./logger');
 
 const client = new Client({ 
     intents: [
         GatewayIntentBits.Guilds,
-        GatewayIntentBits.GuildMembers
+        GatewayIntentBits.GuildMembers,
+        GatewayIntentBits.GuildMessages
     ] 
 });
 
 client.once('ready', () => {
     console.log(`✨ Moonlit Promise Bot is online as ${client.user.tag} ✨`);
+    Logger.info('Discord bot initialized', { botUser: client.user.tag });
 });
 
 client.login(config.BOT_TOKEN).catch(err => {
-    console.error('Bot login failed:', err);
+    Logger.error('Discord bot login failed', err);
 });
 
-module.exports = {
-    sendLoginLog: (userData) => {
+const DiscordLogger = {
+    /**
+     * LOGIN LOG - When user logs in
+     */
+    async sendLoginLog(userData, ip = 'Unknown') {
         const channel = client.channels.cache.get(config.LOGIN_LOG_CHANNEL);
         if (!channel) return;
         
         const embed = new EmbedBuilder()
-            .setTitle('🌙 New Moonlit Visitor')
-            .setDescription(`A new soul has entered the realm of Moonlit Promise`)
+            .setTitle('🌙 New Login')
             .setColor(0x9b59b6)
-            .addFields(
-                { name: 'Discord ID', value: userData.id, inline: true },
-                { name: 'Username', value: userData.username, inline: true },
-                { name: 'Time', value: new Date().toLocaleString(), inline: true }
-            )
             .setThumbnail(`https://cdn.discordapp.com/avatars/${userData.id}/${userData.avatar}.png`)
-            .setFooter({ text: 'Moonlit Promise • Where dreams come true' })
+            .addFields(
+                { name: 'User', value: `<@${userData.id}>`, inline: true },
+                { name: 'Username', value: userData.username, inline: true },
+                { name: 'Discord ID', value: userData.id, inline: true },
+                { name: 'IP Address', value: ip, inline: true },
+                { name: 'Time', value: new Date().toLocaleString('en-IN'), inline: true },
+                { name: 'User Agent', value: 'Web Browser', inline: true }
+            )
+            .setFooter({ text: 'Moonlit Promise • Login Log' })
             .setTimestamp();
         
-        channel.send({ content: `<@${userData.id}> just arrived under the moonlight ✨`, embeds: [embed] });
+        await channel.send({ embeds: [embed] });
+        
+        // Also log to file
+        Logger.login(userData.id, userData.username, ip, { avatar: userData.avatar });
     },
-    
-    sendPaymentLog: (user, cartItems, proofFile, address, phone, fullName, pincode) => {
-        const channel = client.channels.cache.get(config.PAYMENT_LOG_CHANNEL);
+
+    /**
+     * ORDER LOG - When new order is placed
+     */
+    async sendOrderLog(order, user, items) {
+        const channel = client.channels.cache.get(config.ORDER_LOG_CHANNEL);
         if (!channel) return;
         
-        const itemsList = cartItems.map(item => `• ${item.name} - ${config.CURRENCY}${item.price}`).join('\n');
-        const total = cartItems.reduce((sum, item) => sum + item.price, 0);
+        // Create items list
+        const itemsList = items.map(item => 
+            `• **${item.name}** - ${config.CURRENCY}${item.price}`
+        ).join('\n');
+        
+        // Generate QR code for tracking (simulated)
+        const trackingUrl = `${config.BASE_URL}/track/${order.orderNumber}`;
         
         const embed = new EmbedBuilder()
-            .setTitle('💜 New Payment Proof Submitted')
-            .setDescription(`A customer has completed their online payment`)
-            .setColor(0x9b59b6)
+            .setTitle('📦 New Order Placed')
+            .setColor(0x3498db)
+            .setThumbnail(`https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`)
             .addFields(
-                { name: 'Customer', value: user.username, inline: true },
-                { name: 'Full Name', value: fullName, inline: true },
-                { name: 'Phone', value: phone, inline: true },
-                { name: 'Address', value: address, inline: false },
-                { name: 'Pincode', value: pincode, inline: true },
-                { name: 'Items Purchased', value: itemsList, inline: false },
-                { name: 'Total', value: `${config.CURRENCY}${total}`, inline: true },
-                { name: 'Proof File', value: proofFile, inline: true }
+                { name: 'Order Number', value: order.orderNumber, inline: true },
+                { name: 'Customer', value: `<@${user.id}>`, inline: true },
+                { name: 'Full Name', value: order.fullName, inline: true },
+                { name: 'Phone', value: order.phone, inline: true },
+                { name: 'Amount', value: `${config.CURRENCY}${order.totalAmount}`, inline: true },
+                { name: 'Payment Method', value: order.paymentMethod.toUpperCase(), inline: true },
+                { name: 'Address', value: `${order.address}, ${order.pincode}`, inline: false },
+                { name: 'Items', value: itemsList.substring(0, 1024) || 'No items', inline: false },
+                { name: 'Track Order', value: `[Click Here](${trackingUrl})`, inline: true }
             )
-            .setImage(`attachment://${proofFile}`)
-            .setFooter({ text: 'Moonlit Promise • Awaiting approval' })
+            .setFooter({ text: `Order ID: ${order.id} • ${new Date().toLocaleString('en-IN')}` })
             .setTimestamp();
         
-        channel.send({ 
-            content: `<@${user.id}> has shared their payment proof ✨\n**Shipping:** ${fullName} | ${phone} | ${address} | ${pincode}`,
-            embeds: [embed],
-            files: [{
-                attachment: `./public/uploads/${proofFile}`,
-                name: proofFile
-            }]
-        });
-    },
-    
-    sendCODOrderLog: (user, cartItems, address, phone, fullName, pincode) => {
-        const channel = client.channels.cache.get(config.PAYMENT_LOG_CHANNEL);
-        if (!channel) return;
-        
-        const itemsList = cartItems.map(item => `• ${item.name} - ${config.CURRENCY}${item.price}`).join('\n');
-        const total = cartItems.reduce((sum, item) => sum + item.price, 0);
-        
-        const embed = new EmbedBuilder()
-            .setTitle('💵 New COD Order')
-            .setDescription(`A customer has placed a Cash on Delivery order`)
-            .setColor(0xf1c40f)
-            .addFields(
-                { name: 'Customer', value: user.username, inline: true },
-                { name: 'Full Name', value: fullName, inline: true },
-                { name: 'Phone', value: phone, inline: true },
-                { name: 'Address', value: address, inline: false },
-                { name: 'Pincode', value: pincode, inline: true },
-                { name: 'Items Ordered', value: itemsList, inline: false },
-                { name: 'Total', value: `${config.CURRENCY}${total}`, inline: true },
-                { name: 'Phone Verified', value: '✅ Yes (OTP)', inline: true }
-            )
-            .setFooter({ text: 'Moonlit Promise • COD Order' })
-            .setTimestamp();
-        
-        channel.send({ 
-            content: `<@${user.id}> placed a COD order (phone verified) ✨\n**Shipping:** ${fullName} | ${phone} | ${address} | ${pincode}`,
-            embeds: [embed]
-        });
-    },
-    
-    sendApprovalLog: (order) => {
-        const channel = client.channels.cache.get(config.APPROVED_LOG_CHANNEL);
-        if (!channel) return;
-        
-        const embed = new EmbedBuilder()
-            .setTitle('✨ Order Approved ✨')
-            .setDescription(`A promise has been fulfilled under the moonlight`)
-            .setColor(0xf1c40f)
-            .addFields(
-                { name: 'Customer', value: order.username, inline: true },
-                { name: 'Product', value: order.productName, inline: true },
-                { name: 'Order ID', value: order.id.toString(), inline: true },
-                { name: 'Payment Method', value: order.paymentMethod || 'online', inline: true },
-                { name: 'Shipping To', value: `${order.fullName}, ${order.address}, ${order.pincode}`, inline: false },
-                { name: 'Phone', value: order.phone, inline: true }
-            )
-            .setFooter({ text: 'Moonlit Promise • A new dream begins' })
-            .setTimestamp();
-        
-        channel.send({ 
-            content: `<@${order.userId}> your order has been blessed by the moonlight! ✨`,
+        await channel.send({ 
+            content: `🆕 **New Order from ${order.fullName}**`,
             embeds: [embed] 
         });
+        
+        // Log to file
+        Logger.orderCreated(order.orderNumber, user.id, order.totalAmount, items, {
+            address: order.address,
+            pincode: order.pincode,
+            phone: order.phone
+        });
     },
-    
-    giveRole: async (userId, username) => {
-        try {
-            const guild = client.guilds.cache.first();
-            if (!guild) return;
-            
-            const member = await guild.members.fetch(userId).catch(() => null);
-            if (!member) return;
-            
-            const roleId = config.AUTO_ROLE_ID;
-            await member.roles.add(roleId);
-            
-            console.log(`✨ Granted Moonlit Promise role to ${username} ✨`);
-        } catch (error) {
-            console.error('Error giving role:', error);
+
+    /**
+     * PAYMENT LOG - Payment confirmation
+     */
+    async sendPaymentLog(order, user, paymentDetails) {
+        const channel = client.channels.cache.get(config.PAYMENT_LOG_CHANNEL);
+        if (!channel) return;
+        
+        const color = paymentDetails.status === 'completed' ? 0x2ecc71 : 0xf1c40f;
+        const title = paymentDetails.status === 'completed' ? '✅ Payment Completed' : '⏳ Payment Pending';
+        
+        const embed = new EmbedBuilder()
+            .setTitle(title)
+            .setColor(color)
+            .setThumbnail(`https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`)
+            .addFields(
+                { name: 'Order Number', value: order.orderNumber, inline: true },
+                { name: 'Customer', value: `<@${user.id}>`, inline: true },
+                { name: 'Amount', value: `${config.CURRENCY}${order.totalAmount}`, inline: true },
+                { name: 'Payment Method', value: order.paymentMethod.toUpperCase(), inline: true },
+                { name: 'Status', value: paymentDetails.status, inline: true },
+                { name: 'Transaction ID', value: paymentDetails.transactionId || 'N/A', inline: true },
+                { name: 'Payment Time', value: new Date().toLocaleString('en-IN'), inline: true }
+            )
+            .setFooter({ text: 'Moonlit Promise • Payment Log' })
+            .setTimestamp();
+        
+        if (paymentDetails.utrNumber) {
+            embed.addFields({ name: 'UTR Number', value: paymentDetails.utrNumber, inline: true });
         }
+        
+        await channel.send({ embeds: [embed] });
+        
+        // Log to file
+        if (paymentDetails.status === 'completed') {
+            Logger.paymentCompleted(
+                order.orderNumber, 
+                order.totalAmount, 
+                order.paymentMethod,
+                paymentDetails.transactionId || paymentDetails.utrNumber,
+                user.id
+            );
+        } else {
+            Logger.paymentInitiated(
+                order.orderNumber,
+                order.totalAmount,
+                order.paymentMethod,
+                user.id
+            );
+        }
+    },
+
+    /**
+     * DELIVERY LOG - Delivery status updates
+     */
+    async sendDeliveryLog(order, user, deliveryStatus) {
+        const channel = client.channels.cache.get(config.DELIVERY_LOG_CHANNEL);
+        if (!channel) return;
+        
+        let color, title, emoji;
+        switch(deliveryStatus.status) {
+            case 'shipped':
+                color = 0x3498db;
+                title = '🚚 Order Shipped';
+                emoji = '📦';
+                break;
+            case 'out_for_delivery':
+                color = 0xf39c12;
+                title = '🛵 Out for Delivery';
+                emoji = '🛵';
+                break;
+            case 'delivered':
+                color = 0x2ecc71;
+                title = '✅ Order Delivered';
+                emoji = '🎉';
+                break;
+            case 'failed':
+                color = 0xe74c3c;
+                title = '❌ Delivery Failed';
+                emoji = '⚠️';
+                break;
+            default:
+                color = 0x95a5a6;
+                title = '📋 Delivery Update';
+                emoji = '📋';
+        }
+        
+        const embed = new EmbedBuilder()
+            .setTitle(`${emoji} ${title}`)
+            .setColor(color)
+            .setThumbnail(`https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`)
+            .addFields(
+                { name: 'Order Number', value: order.orderNumber, inline: true },
+                { name: 'Customer', value: `<@${user.id}>`, inline: true },
+                { name: 'Full Name', value: order.fullName, inline: true },
+                { name: 'Phone', value: order.phone, inline: true },
+                { name: 'Delivery Status', value: deliveryStatus.status, inline: true },
+                { name: 'Address', value: `${order.address}, ${order.pincode}`, inline: false }
+            );
+        
+        if (deliveryStatus.trackingId) {
+            embed.addFields({ name: 'Tracking ID', value: deliveryStatus.trackingId, inline: true });
+        }
+        
+        if (deliveryStatus.estimatedDelivery) {
+            embed.addFields({ name: 'Estimated Delivery', value: deliveryStatus.estimatedDelivery, inline: true });
+        }
+        
+        if (deliveryStatus.deliveredAt) {
+            embed.addFields({ name: 'Delivered At', value: deliveryStatus.deliveredAt, inline: true });
+        }
+        
+        if (deliveryStatus.notes) {
+            embed.addFields({ name: 'Notes', value: deliveryStatus.notes, inline: false });
+        }
+        
+        embed.setFooter({ text: `Updated: ${new Date().toLocaleString('en-IN')}` })
+            .setTimestamp();
+        
+        await channel.send({ 
+            content: `${emoji} **Delivery Update for Order ${order.orderNumber}**`,
+            embeds: [embed] 
+        });
+        
+        // Log to file
+        switch(deliveryStatus.status) {
+            case 'shipped':
+                Logger.deliveryInitiated(order.orderNumber, order.address, user.id, deliveryStatus);
+                break;
+            case 'out_for_delivery':
+                Logger.deliveryOutForDelivery(order.orderNumber, deliveryStatus.courier, deliveryStatus.trackingId);
+                break;
+            case 'delivered':
+                Logger.deliveryDelivered(order.orderNumber, order.fullName, deliveryStatus.deliveredAt);
+                break;
+            case 'failed':
+                Logger.deliveryFailed(order.orderNumber, deliveryStatus.reason);
+                break;
+        }
+    },
+
+    /**
+     * ADMIN LOG - Admin actions
+     */
+    async sendAdminLog(admin, action, details, targetUser = null) {
+        const channel = client.channels.cache.get(config.ADMIN_LOG_CHANNEL);
+        if (!channel) return;
+        
+        const embed = new EmbedBuilder()
+            .setTitle('🔧 Admin Action')
+            .setColor(0xe74c3c)
+            .setThumbnail(`https://cdn.discordapp.com/avatars/${admin.id}/${admin.avatar}.png`)
+            .addFields(
+                { name: 'Admin', value: `<@${admin.id}>`, inline: true },
+                { name: 'Action', value: action, inline: true },
+                { name: 'Time', value: new Date().toLocaleString('en-IN'), inline: true },
+                { name: 'Details', value: details, inline: false }
+            );
+        
+        if (targetUser) {
+            embed.addFields({ name: 'Target User', value: `<@${targetUser.id}> (${targetUser.username})`, inline: true });
+        }
+        
+        embed.setFooter({ text: 'Moonlit Promise • Admin Log' })
+            .setTimestamp();
+        
+        await channel.send({ embeds: [embed] });
+        
+        // Log to file
+        Logger.adminAction(admin.id, admin.username, action, { details, targetUser });
+    },
+
+    /**
+     * ADDRESS CONFIRMATION LOG
+     */
+    async sendAddressConfirmationLog(order, user) {
+        const channel = client.channels.cache.get(config.ORDER_LOG_CHANNEL);
+        if (!channel) return;
+        
+        const embed = new EmbedBuilder()
+            .setTitle('📍 Address Confirmed')
+            .setColor(0x3498db)
+            .addFields(
+                { name: 'Order', value: order.orderNumber, inline: true },
+                { name: 'Customer', value: `<@${user.id}>`, inline: true },
+                { name: 'Full Name', value: order.fullName, inline: true },
+                { name: 'Phone', value: order.phone, inline: true },
+                { name: 'Address', value: order.address, inline: false },
+                { name: 'Pincode', value: order.pincode, inline: true },
+                { name: 'Verified At', value: new Date().toLocaleString('en-IN'), inline: true }
+            )
+            .setFooter({ text: 'Address verification completed' })
+            .setTimestamp();
+        
+        await channel.send({ embeds: [embed] });
     }
 };
+
+module.exports = DiscordLogger;
